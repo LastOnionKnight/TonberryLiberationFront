@@ -1,0 +1,1221 @@
+/* =========================================================================
+   TLF HUD v0.1 — chrome stylesheet
+   --------------------------------------------------------------------------
+   Extends the ui-package-v2 token system. The existing --fr-* and --ember*
+   tokens are preserved verbatim (Frost UI authentic, Onion Knight ember
+   accent). v0.1-specific tokens are prefixed --tlf-toolbar-* / --tlf-popout-*
+   / --tlf-editmode-* so v2 surfaces (Tonberry Tactics, Player Frame, etc.)
+   can adopt this file without collision.
+
+   Runtime port targets:
+     - CSS (this file)                — TLF HUD plugin via Una.Drawing
+     - Una.Drawing                    — node-style{} 1:1 mappable
+     - ImGui (Tonberry Tactics)       — colors as Vector4, sizes as floats
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'Eorzea';
+  src: url('../fonts/Eorzea.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  /* ── Frost UI authentic tokens (copied from v2 hud.css — DO NOT RENAME) ── */
+  --fr-bg:           rgba(20, 22, 28, 0.90);
+  --fr-bg-darker:    rgba(14, 16, 22, 0.95);
+  --fr-secondary:    rgb(58, 62, 72);
+  --fr-ternary:      rgb(178, 178, 181);
+  --fr-fg:           rgb(242, 242, 245);
+  --fr-fg-2:         rgb(190, 196, 208);
+  --fr-fg-3:         rgb(135, 145, 162);
+  --fr-fg-4:         rgb(80, 90, 105);
+  --fr-fg-secondary: rgb(0, 0, 0);
+
+  --fr-outline:      rgba(178, 178, 178, 1.0);
+  --fr-outline-soft: rgba(178, 178, 178, 0.45);
+
+  --fr-corner-standalone: 22px;
+  --fr-corner-other:      10px;
+  --fr-stroke:           2px;
+  --fr-stroke-standalone: 4px;
+
+  --fr-accent:         #D67B3C;
+  --fr-accent-bright:  #F2A057;
+  --fr-accent-deep:    #A85820;
+  --fr-accent-glow:    0 0 12px rgba(214,123,60,0.55), 0 0 28px rgba(214,123,60,0.28);
+
+  --fr-proc:           rgb(255, 173, 56);
+  --fr-tank:           rgb(81, 104, 204);
+  --fr-healer:         rgb(135, 204, 81);
+  --fr-dps:            rgb(204, 81, 81);
+
+  /* Type */
+  --font-display: 'Cinzel', 'Trajan Pro', serif;
+  --font-body:    'Cinzel', 'Trajan Pro', serif;
+  --font-quote:   'Cormorant Garamond', 'Georgia', serif;
+  --font-mono:    'JetBrains Mono', 'Menlo', monospace;
+  --font-rune:    'Eorzea', 'Cinzel', serif;
+
+  --ls-eyebrow: 0.22em;
+  --ls-heading: 0.06em;
+
+  /* Backwards-compat aliases used by v2 components */
+  --ember:        var(--fr-accent);
+  --ember-bright: var(--fr-accent-bright);
+  --ember-deep:   var(--fr-accent-deep);
+  --ember-glow:   var(--fr-accent-glow);
+  --frost-fg-1:   var(--fr-fg);
+  --frost-fg-2:   var(--fr-fg-2);
+  --frost-fg-3:   var(--fr-fg-3);
+  --frost-fg-4:   var(--fr-fg-4);
+  --frost-border-1: rgba(178, 178, 178, 0.22);
+  --frost-border-2: var(--fr-outline-soft);
+  --frost-border-glow: rgba(255, 195, 110, 0.7);
+
+  /* Severity (v2-compatible — toolbar/popout reads from these) */
+  --sev-critical: #D67B3C;   /* ember */
+  --sev-warning:  #E2C36A;   /* heraldic gold */
+  --sev-note:     #7FC9EE;   /* frost cyan */
+  --hp-green:     #6FBF6A;
+
+  --ease-frost: cubic-bezier(0.2, 0.6, 0.2, 1);
+
+  /* ── NEW v0.1 tokens — TLF HUD–specific ─────────────────────────────── */
+
+  /* Toolbar pill */
+  --tlf-toolbar-bg:        rgba(20, 22, 28, 0.92);
+  --tlf-toolbar-opacity:   1;
+  --tlf-toolbar-height:    44px;
+  --tlf-toolbar-pad-x:     10px;
+  --tlf-toolbar-pad-y:     6px;
+  --tlf-toolbar-gap:       6px;
+  --tlf-toolbar-radius:    10px;
+  --tlf-toolbar-border:    1px solid var(--fr-outline-soft);
+  --tlf-toolbar-shadow:    0 12px 32px rgba(0,0,0,0.55),
+                           0 0 0 1px rgba(0,0,0,0.4),
+                           inset 0 1px 0 rgba(255,255,255,0.06);
+  --tlf-toolbar-shadow-edit: 0 0 0 2px var(--fr-accent),
+                             0 16px 40px rgba(0,0,0,0.7),
+                             0 0 36px rgba(214,123,60,0.35);
+
+  /* Widget chip inside toolbar */
+  --tlf-widget-bg:         rgba(0,0,0,0.28);
+  --tlf-widget-bg-hover:   rgba(214,123,60,0.10);
+  --tlf-widget-border:     1px solid var(--frost-border-1);
+  --tlf-widget-radius:     5px;
+  --tlf-widget-pad-x:      10px;
+  --tlf-widget-pad-y:      4px;
+  --tlf-widget-min-h:      36px;
+
+  /* Brand chip (left of toolbar) */
+  --tlf-brand-bg:          linear-gradient(180deg, rgba(214,123,60,0.22), rgba(214,123,60,0.06));
+  --tlf-brand-bg-hover:    linear-gradient(180deg, rgba(214,123,60,0.34), rgba(214,123,60,0.10));
+  --tlf-brand-border:      1px solid var(--ember);
+  --tlf-brand-radius:      6px;
+
+  /* Popout dropdown */
+  --tlf-popout-bg:         rgba(14, 16, 22, 0.96);
+  --tlf-popout-border:     2px solid var(--fr-outline);
+  --tlf-popout-radius:     8px;
+  --tlf-popout-width:      380px;
+  --tlf-popout-max-h:      540px;
+  --tlf-popout-shadow:     0 18px 48px rgba(0,0,0,0.75),
+                           0 0 32px rgba(214,123,60,0.18);
+  --tlf-popout-arrow-size: 12px;
+  --tlf-popout-offset:     10px;
+
+  /* Edit mode */
+  --tlf-editmode-outline:  2px dashed var(--fr-accent);
+  --tlf-editmode-offset:   6px;
+  --tlf-editmode-bg-tint:  rgba(214,123,60,0.10);
+  --tlf-editmode-stage-vignette: radial-gradient(ellipse at 50% 50%,
+                                  rgba(214,123,60,0.06) 0%,
+                                  rgba(214,123,60,0) 60%);
+  --tlf-editmode-handle:   var(--ember);
+
+  /* Light theme override */
+}
+:root[data-theme="light"] {
+  --fr-bg:           rgba(248, 240, 218, 0.92);
+  --fr-bg-darker:    rgba(232, 218, 184, 0.96);
+  --fr-fg:           rgb(42, 31, 18);
+  --fr-fg-2:         rgb(74, 56, 32);
+  --fr-fg-3:         rgb(110, 90, 58);
+  --fr-fg-4:         rgb(154, 138, 102);
+  --fr-outline:      rgba(70, 56, 30, 0.85);
+  --fr-outline-soft: rgba(70, 56, 30, 0.4);
+  --frost-fg-1:      var(--fr-fg);
+  --frost-fg-2:      var(--fr-fg-2);
+  --frost-fg-3:      var(--fr-fg-3);
+  --frost-fg-4:      var(--fr-fg-4);
+  --frost-border-1:  var(--fr-outline-soft);
+  --frost-border-2:  var(--fr-outline);
+  --tlf-toolbar-bg:  rgba(248, 240, 218, 0.92);
+  --tlf-widget-bg:   rgba(70, 56, 30, 0.08);
+  --tlf-widget-bg-hover: rgba(214,123,60,0.16);
+  --tlf-popout-bg:   rgba(248, 240, 218, 0.97);
+}
+
+/* Severity palette variants (Tweak) */
+:root[data-severity="classic"] {
+  --sev-critical: #D67B3C;
+  --sev-warning:  #E2C36A;
+  --sev-note:     #7FC9EE;
+}
+:root[data-severity="leaf"] {
+  --sev-critical: #D67B3C;
+  --sev-warning:  #E2C36A;
+  --sev-note:     #6FBF6A;
+}
+:root[data-severity="ember-only"] {
+  --sev-critical: #D67B3C;
+  --sev-warning:  #F2A057;
+  --sev-note:     #C89A6E;
+}
+
+/* ─────────────────────────  Reset + base  ──────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--fr-fg);
+  background: #050810;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img { -webkit-user-drag: none; user-drag: none; }
+
+#root { width: 100%; height: 100%; }
+.stage {
+  position: relative;
+  width: 1920px; height: 1080px;
+  transform-origin: top left;
+  overflow: hidden;
+  background: #0a0e1a;
+}
+
+/* ──────────────────────  FFXIV scene (placeholder)  ────────────────────── */
+.scene {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+.scene-bg {
+  position: absolute; inset: 0;
+  background:
+    /* Soft sky gradient — golden hour */
+    linear-gradient(170deg, #1c2742 0%, #2c3a5e 28%, #694a30 75%, #2a1d0f 100%);
+}
+.scene-noise {
+  position: absolute; inset: 0;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(255,200,140,0.30), transparent 40%),
+    radial-gradient(circle at 75% 55%, rgba(120,160,220,0.20), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(0,0,0,0.55), transparent 55%);
+}
+.scene-grid {
+  position: absolute; inset: 0;
+  opacity: 0.06;
+  background-image:
+    repeating-linear-gradient(0deg,   rgba(255,255,255,0.6) 0 1px, transparent 1px 96px),
+    repeating-linear-gradient(90deg,  rgba(255,255,255,0.6) 0 1px, transparent 1px 96px);
+}
+.scene-horizon {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, transparent 56%, rgba(0,0,0,0.45) 100%);
+}
+.scene-placeholder-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+  padding: 24px 36px;
+  background: rgba(0,0,0,0.55);
+  border: 1px dashed rgba(255,255,255,0.32);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.scene-placeholder-label .glyph {
+  font-family: var(--font-rune);
+  font-size: 28px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.04em;
+}
+.scene-placeholder-label .lbl-2 {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: rgba(255,255,255,0.40);
+}
+
+/* Subtle FFXIV-ish UI ghost so the screen doesn't feel empty — purely cosmetic */
+.scene-ghost-hotbar {
+  position: absolute;
+  left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  display: flex; gap: 4px;
+  opacity: 0.22;
+}
+.scene-ghost-hotbar > i {
+  width: 38px; height: 38px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 2px;
+}
+.scene-ghost-portrait {
+  position: absolute;
+  left: 24px; bottom: 24px;
+  width: 220px; height: 80px;
+  opacity: 0.22;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.scene-ghost-portrait > b {
+  height: 14px;
+  background: linear-gradient(90deg, rgba(110,200,140,0.8) 80%, rgba(110,200,140,0.2));
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.scene-ghost-portrait > b:nth-child(2) {
+  background: linear-gradient(90deg, rgba(110,160,240,0.8) 65%, rgba(110,160,240,0.2));
+}
+
+/* ──────────────────────  TLF Toolbar pill  ─────────────────────────────── */
+.tlf-toolbar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--tlf-toolbar-gap);
+  padding: var(--tlf-toolbar-pad-y) var(--tlf-toolbar-pad-x);
+  background: var(--tlf-toolbar-bg);
+  border: var(--tlf-toolbar-border);
+  border-radius: var(--tlf-toolbar-radius);
+  opacity: var(--tlf-toolbar-opacity);
+  z-index: 50;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow: var(--tlf-toolbar-shadow);
+  pointer-events: auto;
+  transition: box-shadow 220ms var(--ease-frost),
+              border-color 220ms var(--ease-frost),
+              opacity 220ms var(--ease-frost);
+}
+
+/* Toolbar shape variants */
+.tlf-toolbar[data-shape="pill"]      { /* default */ }
+.tlf-toolbar[data-shape="full"] {
+  left: 0 !important; right: 0 !important;
+  width: 100vw; max-width: 100%;
+  border-radius: 0;
+  border-left: 0; border-right: 0;
+}
+.tlf-toolbar[data-shape="edge-top"] {
+  left: 0 !important; right: 0 !important;
+  width: 100vw; max-width: 100%;
+  border-top: 0;
+  border-radius: 0 0 var(--tlf-toolbar-radius) var(--tlf-toolbar-radius);
+}
+.tlf-toolbar[data-shape="edge-bottom"] {
+  left: 0 !important; right: 0 !important;
+  top: auto !important;
+  bottom: 0;
+  width: 100vw; max-width: 100%;
+  border-bottom: 0;
+  border-radius: var(--tlf-toolbar-radius) var(--tlf-toolbar-radius) 0 0;
+}
+
+/* Edit mode treatment on the toolbar */
+.stage.edit-mode .tlf-toolbar {
+  cursor: move;
+  outline: var(--tlf-editmode-outline);
+  outline-offset: var(--tlf-editmode-offset);
+  box-shadow: var(--tlf-toolbar-shadow-edit);
+}
+.stage.edit-mode .tlf-toolbar::before {
+  /* Drag handle indicator on the left edge */
+  content: "";
+  position: absolute;
+  left: -22px; top: 50%;
+  transform: translateY(-50%);
+  width: 14px; height: 28px;
+  background:
+    radial-gradient(circle at center, var(--tlf-editmode-handle) 0 2px, transparent 2.5px) 0 0 / 6px 8px;
+  background-repeat: round;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.stage.edit-mode .tlf-toolbar.dragging {
+  outline-style: solid;
+  background: rgba(214,123,60,0.22);
+}
+.stage.edit-mode {
+  background: #0a0e1a;
+}
+.stage.edit-mode::after {
+  /* edit-mode stage tint */
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--tlf-editmode-stage-vignette);
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* Brand chip */
+.tlf-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 12px 4px 6px;
+  background: var(--tlf-brand-bg);
+  border: var(--tlf-brand-border);
+  border-radius: var(--tlf-brand-radius);
+  color: var(--fr-fg);
+  cursor: pointer;
+  transition: background 200ms var(--ease-frost);
+}
+.tlf-brand:hover { background: var(--tlf-brand-bg-hover); }
+.tlf-brand.open {
+  background: linear-gradient(180deg, rgba(214,123,60,0.36), rgba(214,123,60,0.12));
+  box-shadow: 0 0 0 1px var(--ember-bright), 0 0 16px rgba(214,123,60,0.45);
+}
+.tlf-brand-helm {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 35%;
+  background: radial-gradient(circle at 50% 50%, #2A6FDB22 0%, transparent 70%);
+  filter: drop-shadow(0 0 6px rgba(214,123,60,0.45));
+}
+.tlf-brand-text { display: flex; flex-direction: column; line-height: 1; }
+.tlf-brand-l1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--ember-bright);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.tlf-brand-l2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 8.5px;
+  letter-spacing: 0.20em;
+  color: var(--fr-fg-2);
+  margin-top: 2px;
+}
+.tlf-brand-rune {
+  margin-left: 6px;
+  font-family: var(--font-rune);
+  font-size: 13px;
+  color: var(--ember);
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
+
+/* Toolbar divider */
+.tlf-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--frost-border-1);
+  flex: 0 0 auto;
+}
+
+/* Widget chip (generic) */
+.tlf-widget {
+  display: flex; align-items: center; gap: 8px;
+  padding: var(--tlf-widget-pad-y) var(--tlf-widget-pad-x);
+  background: var(--tlf-widget-bg);
+  border: var(--tlf-widget-border);
+  border-radius: var(--tlf-widget-radius);
+  color: var(--fr-fg-2);
+  cursor: pointer;
+  position: relative;
+  min-height: var(--tlf-widget-min-h);
+  transition: background 180ms var(--ease-frost),
+              border-color 180ms var(--ease-frost),
+              color 180ms var(--ease-frost);
+}
+.tlf-widget:hover {
+  background: var(--tlf-widget-bg-hover);
+  border-color: var(--ember);
+  color: var(--fr-fg);
+}
+.tlf-widget-icon {
+  display: grid; place-items: center;
+  width: 18px; height: 18px;
+  color: var(--ember-bright);
+  flex: 0 0 auto;
+}
+.tlf-widget-text { display: flex; flex-direction: column; line-height: 1; gap: 3px; }
+.tlf-widget-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fr-fg-3);
+}
+.tlf-widget-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--fr-fg);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Tactics audit widget — the focal chip */
+.tlf-tactics {
+  background: linear-gradient(180deg, rgba(214,123,60,0.18), rgba(214,123,60,0.06));
+  border-color: var(--ember);
+}
+.tlf-tactics.all-clear {
+  background: linear-gradient(180deg, rgba(111,191,106,0.15), rgba(111,191,106,0.04));
+  border-color: var(--hp-green);
+}
+.tlf-tactics.has-warning {
+  background: linear-gradient(180deg, rgba(226,195,106,0.16), rgba(226,195,106,0.04));
+  border-color: var(--sev-warning);
+}
+.tlf-tactics.open {
+  background: linear-gradient(180deg, rgba(214,123,60,0.36), rgba(214,123,60,0.12));
+  box-shadow: 0 0 0 1px var(--ember-bright), 0 0 16px rgba(214,123,60,0.45);
+}
+.tlf-tactics-mascot {
+  width: 26px; height: 26px;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 0 5px rgba(214,123,60,0.45));
+}
+.tlf-tactics-mascot.placeholder {
+  display: grid; place-items: center;
+  width: 26px; height: 26px;
+  background: linear-gradient(135deg, #3a5a2a, #4d7a36);
+  border: 1px solid #2a4a1c;
+  border-radius: 4px;
+  color: #FFD86A;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.tlf-tactics-pip {
+  position: absolute;
+  top: -6px; right: -6px;
+  min-width: 18px; height: 18px;
+  padding: 0 4px;
+  display: grid; place-items: center;
+  background: var(--sev-critical);
+  color: #1A0D04;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 10px;
+  border: 1px solid var(--ember-bright);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(214,123,60,0.6);
+  pointer-events: none;
+}
+.tlf-tactics-pip[data-severity="warning"] { background: var(--sev-warning); }
+.tlf-tactics-pip[data-severity="ok"]      { background: var(--hp-green); border-color: var(--hp-green); }
+
+/* Compact "Stab" voice tag inside the tactics chip */
+.tlf-tactics-voice {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ember-bright);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  display: inline-block;
+  margin-top: 2px;
+}
+.tlf-tactics-voice[data-tone="warning"] { color: var(--sev-warning); }
+.tlf-tactics-voice[data-tone="ok"]      { color: var(--hp-green); }
+
+/* Tonberry status (vibing) */
+.tlf-status-mascot {
+  width: 24px; height: 24px;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+.tlf-status-mascot.placeholder {
+  display: grid; place-items: center;
+  width: 24px; height: 24px;
+  background: linear-gradient(135deg, #3a5a2a, #4d7a36);
+  border: 1px solid #2a4a1c;
+  border-radius: 4px;
+  color: #C0E2A6;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+/* ──────────────────────  Tactics Popout (anchored dropdown)  ──────────── */
+.tlf-popout-wrap {
+  position: absolute;
+  z-index: 60;
+  pointer-events: none;
+}
+.tlf-popout {
+  position: relative;
+  width: var(--tlf-popout-width);
+  max-height: var(--tlf-popout-max-h);
+  background: var(--tlf-popout-bg);
+  border: var(--tlf-popout-border);
+  border-radius: var(--tlf-popout-radius);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  box-shadow: var(--tlf-popout-shadow);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  animation: tlfPopIn 220ms var(--ease-frost);
+}
+@keyframes tlfPopIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Arrow pointing up to the anchor chip */
+.tlf-popout::before {
+  content: "";
+  position: absolute;
+  top: -8px; left: var(--tlf-popout-arrow-x, 30px);
+  width: 14px; height: 14px;
+  background: var(--tlf-popout-bg);
+  border-top: 2px solid var(--fr-outline);
+  border-left: 2px solid var(--fr-outline);
+  transform: rotate(45deg);
+  z-index: 0;
+}
+.tlf-popout[data-detached="true"]::before { display: none; }
+.tlf-popout[data-detached="true"] {
+  /* Floating window mode — gets a title bar drag affordance */
+  border-color: var(--ember);
+}
+
+.tlf-popout-head {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(214,123,60,0.18), rgba(214,123,60,0.04));
+  border-bottom: 1px solid var(--fr-outline-soft);
+  flex: 0 0 auto;
+  z-index: 1;
+}
+.tlf-popout[data-detached="true"] .tlf-popout-head { cursor: move; }
+.tlf-popout-mascot {
+  width: 30px; height: 30px;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+.tlf-popout-mascot.placeholder {
+  display: grid; place-items: center;
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, #3a5a2a, #4d7a36);
+  border: 1px solid #2a4a1c;
+  border-radius: 4px;
+  color: #FFD86A;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 900;
+}
+.tlf-popout-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ember-bright);
+  line-height: 1;
+}
+.tlf-popout-sub {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--fr-fg-3);
+  margin-top: 3px;
+}
+.tlf-popout-actions { margin-left: auto; display: flex; gap: 4px; }
+.tlf-popout-x {
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--frost-border-1);
+  border-radius: 50%;
+  color: var(--fr-fg-3);
+  cursor: pointer;
+  transition: color 180ms var(--ease-frost), border-color 180ms var(--ease-frost);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.tlf-popout-x:hover { color: var(--ember-bright); border-color: var(--ember); }
+
+.tlf-popout-body {
+  padding: 14px;
+  display: flex; flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+/* Score row */
+.tlf-score {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px;
+  background: rgba(0,0,0,0.32);
+  border: 1px solid var(--frost-border-1);
+  border-radius: 5px;
+}
+.tlf-score-ring {
+  position: relative;
+  width: 64px; height: 64px;
+  flex: 0 0 auto;
+}
+.tlf-score-ring svg { width: 100%; height: 100%; }
+.tlf-score-ring-num {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--ember-bright);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+}
+.tlf-score-text { flex: 1; min-width: 0; }
+.tlf-score-eyebrow {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--fr-fg-3);
+}
+.tlf-score-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  color: var(--fr-fg);
+  margin: 3px 0 4px;
+}
+.tlf-score-quip {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--fr-fg-3);
+  line-height: 1.35;
+}
+
+/* Finding row */
+.tlf-finding {
+  position: relative;
+  padding: 10px 12px 10px 14px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 0 4px 4px 0;
+  border-left: 3px solid var(--sev-critical);
+}
+.tlf-finding[data-sev="warning"] { border-left-color: var(--sev-warning); }
+.tlf-finding[data-sev="note"]    { border-left-color: var(--sev-note); }
+.tlf-finding-head {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fr-fg);
+}
+.tlf-finding-head .icon {
+  display: grid; place-items: center;
+  width: 14px; height: 14px;
+  flex: 0 0 auto;
+  color: var(--sev-critical);
+}
+.tlf-finding[data-sev="warning"] .icon { color: var(--sev-warning); }
+.tlf-finding[data-sev="note"]    .icon { color: var(--sev-note); }
+.tlf-finding-stab {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  margin-left: auto;
+  color: var(--sev-critical);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.tlf-finding[data-sev="warning"] .tlf-finding-stab { color: var(--sev-warning); }
+.tlf-finding[data-sev="note"]    .tlf-finding-stab { color: var(--sev-note); }
+.tlf-finding-body {
+  margin-top: 6px;
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--fr-fg-2);
+  line-height: 1.5;
+}
+
+/* Empty state — no findings */
+.tlf-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 26px 16px;
+  text-align: center;
+}
+.tlf-empty img,
+.tlf-empty .placeholder {
+  width: 64px; height: 64px;
+  image-rendering: pixelated;
+}
+.tlf-empty .placeholder {
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #3a5a2a, #4d7a36);
+  border: 1px solid #2a4a1c;
+  border-radius: 6px;
+  color: #C0E2A6;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.tlf-empty-h {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ember-bright);
+}
+.tlf-empty-p {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--fr-fg-3);
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.tlf-popout-foot {
+  padding: 10px 14px;
+  border-top: 1px solid var(--fr-outline-soft);
+  background: rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.tlf-popout-foot .meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fr-fg-3);
+}
+.tlf-btn {
+  padding: 6px 14px;
+  background: linear-gradient(180deg, var(--ember-bright), var(--ember-deep));
+  color: #1A0D04;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--ember);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: filter 180ms var(--ease-frost), box-shadow 180ms var(--ease-frost);
+}
+.tlf-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 14px rgba(214,123,60,0.5);
+}
+
+/* ──────────────────────  TLF Suite Navigator (brand-chip popover)  ─────── */
+.tlf-nav-wrap {
+  position: absolute;
+  z-index: 60;
+  pointer-events: none;
+}
+.tlf-nav {
+  position: relative;
+  width: 320px;
+  background: var(--tlf-popout-bg);
+  border: var(--tlf-popout-border);
+  border-radius: var(--tlf-popout-radius);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+  box-shadow: var(--tlf-popout-shadow);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  animation: tlfPopIn 220ms var(--ease-frost);
+}
+.tlf-nav::before {
+  content: "";
+  position: absolute;
+  top: -8px; left: var(--tlf-popout-arrow-x, 30px);
+  width: 14px; height: 14px;
+  background: var(--tlf-popout-bg);
+  border-top: 2px solid var(--fr-outline);
+  border-left: 2px solid var(--fr-outline);
+  transform: rotate(45deg);
+  z-index: 0;
+}
+
+.tlf-nav-head {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, rgba(214,123,60,0.22), rgba(214,123,60,0.04));
+  border-bottom: 1px solid var(--fr-outline-soft);
+  z-index: 1;
+}
+.tlf-nav-wordmark {
+  height: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+  flex: 0 0 auto;
+}
+.tlf-nav-headtext { display: flex; flex-direction: column; line-height: 1.1; }
+.tlf-nav-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--fr-fg-3);
+}
+.tlf-nav-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ember-bright);
+  margin-top: 2px;
+}
+.tlf-nav-ver {
+  margin-left: auto;
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.42);
+  border: 1px solid var(--frost-border-1);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ember-bright);
+}
+
+.tlf-nav-body {
+  padding: 6px;
+  display: flex; flex-direction: column;
+  gap: 2px;
+}
+.tlf-nav-row {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--fr-fg);
+  cursor: pointer;
+  transition: background 160ms var(--ease-frost),
+              border-color 160ms var(--ease-frost),
+              color 160ms var(--ease-frost);
+  text-align: left;
+  width: 100%;
+}
+.tlf-nav-row:hover {
+  background: rgba(214,123,60,0.10);
+  border-color: var(--frost-border-1);
+}
+.tlf-nav-row.active {
+  background: rgba(214,123,60,0.16);
+  border-color: var(--ember);
+}
+.tlf-nav-row .icon {
+  display: grid; place-items: center;
+  width: 30px; height: 30px;
+  color: var(--ember-bright);
+  background: rgba(0,0,0,0.32);
+  border: 1px solid var(--frost-border-1);
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+.tlf-nav-row .text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.tlf-nav-row .name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--fr-fg);
+  text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tlf-nav-row .sub {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--fr-fg-3);
+  margin-top: 2px;
+}
+.tlf-nav-row .chev {
+  color: var(--fr-fg-3);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+.tlf-nav-row:hover .chev { color: var(--ember-bright); }
+
+.tlf-nav-row.disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.tlf-nav-row.disabled:hover {
+  background: transparent;
+  border-color: transparent;
+}
+.tlf-nav-row .badge {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fr-fg-4);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--frost-border-1);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+.tlf-nav-foot {
+  padding: 10px 14px;
+  border-top: 1px solid var(--fr-outline-soft);
+  background: rgba(0,0,0,0.22);
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--fr-fg-3);
+}
+.tlf-nav-foot .rune {
+  font-family: var(--font-rune);
+  font-size: 12px;
+  color: var(--ember);
+  letter-spacing: 0.04em;
+  font-style: normal;
+}
+
+/* ──────────────────────  Edit mode HUD chrome  ─────────────────────────── */
+.tlf-editmode-banner {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  background: rgba(20,22,28,0.92);
+  border: 1px solid var(--ember);
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ember-bright);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  pointer-events: auto;
+  z-index: 55;
+  animation: tlfPopIn 200ms var(--ease-frost);
+}
+.tlf-editmode-banner .kbd {
+  display: inline-grid; place-items: center;
+  height: 18px; padding: 0 5px; min-width: 18px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--fr-outline-soft);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0;
+  color: var(--fr-fg);
+}
+.tlf-editmode-banner .sep {
+  width: 1px; height: 14px;
+  background: var(--frost-border-1);
+}
+.tlf-editmode-banner .quip {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--fr-fg-2);
+}
+
+/* ──────────────────────  Tooltip (toolbar widgets)  ────────────────────── */
+.tlf-tooltip {
+  position: absolute;
+  min-width: 200px; max-width: 280px;
+  padding: 10px 12px;
+  background: var(--fr-bg-darker);
+  border: 1px solid var(--fr-outline);
+  border-radius: 5px;
+  color: var(--fr-fg);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  z-index: 70;
+  pointer-events: none;
+  animation: tlfPopIn 180ms var(--ease-frost);
+}
+.tlf-tooltip-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 12px;
+  color: var(--ember-bright);
+  margin-bottom: 4px;
+}
+.tlf-tooltip-line {
+  color: var(--fr-fg-2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.tlf-tooltip-quip {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--frost-border-1);
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--fr-fg-3);
+}
+
+/* ──────────────────────  About / Chronicle modal  ──────────────────────── */
+.tlf-about-scrim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: grid; place-items: center;
+  z-index: 80;
+  animation: tlfPopIn 240ms var(--ease-frost);
+}
+.tlf-about {
+  position: relative;
+  width: 520px;
+  max-width: 90%;
+  padding: 32px 36px 28px;
+  background: var(--tlf-popout-bg);
+  border: 2px solid var(--ember);
+  border-radius: var(--tlf-popout-radius);
+  box-shadow:
+    0 24px 56px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 0 48px rgba(214,123,60,0.30);
+  color: var(--fr-fg);
+}
+.tlf-about-wordmark {
+  height: 64px;
+  display: block;
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7))
+          drop-shadow(0 0 22px rgba(214,123,60,0.25));
+}
+.tlf-about-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--fr-fg-3);
+  margin-bottom: 16px;
+}
+.tlf-about-p {
+  font-family: var(--font-quote);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fr-fg-2);
+  margin: 0 0 12px;
+  text-align: center;
+}
+.tlf-about-p.tlf-about-cork {
+  font-style: italic;
+  color: var(--fr-fg-3);
+  font-size: 14px;
+}
+.tlf-about-meta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--frost-border-1);
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fr-fg-3);
+  letter-spacing: 0.04em;
+}
+.tlf-about-meta .rune {
+  font-family: var(--font-rune);
+  font-size: 13px;
+  color: var(--ember);
+  letter-spacing: 0.06em;
+}
+
+/* ──────────────────────  Doc overlay (start-of-page note)  ─────────────── */
+.tlf-doc-card {
+  position: absolute;
+  right: 24px; bottom: 24px;
+  width: 320px;
+  padding: 14px 16px;
+  background: rgba(14,16,22,0.92);
+  border: 1px solid var(--fr-outline-soft);
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--fr-fg-2);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+  z-index: 30;
+  pointer-events: auto;
+  animation: tlfPopIn 280ms var(--ease-frost);
+}
+.tlf-doc-card .h {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ember-bright);
+  margin-bottom: 6px;
+}
+.tlf-doc-card ul {
+  margin: 0; padding-left: 16px;
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--fr-fg-3);
+}
+.tlf-doc-card .dismiss {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--fr-fg-4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.tlf-doc-card .dismiss:hover { color: var(--ember-bright); }

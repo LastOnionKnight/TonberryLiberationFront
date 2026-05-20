@@ -1,0 +1,22 @@
+﻿# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# .NET (in case plugin source lands here later)
+bin/
+obj/
+*.user
+
+# Node (in case website source lands here later)
+node_modules/
+dist/
+.next/
+
+# Local
+*.local
