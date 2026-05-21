@@ -1,17 +1,11 @@
-using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
-using System;
+using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.Numerics;
 
 namespace KhPartyBars.Windows;
 
-/// <summary>
-/// The party-bars overlay window. Draws transparent, no-chrome — all
-/// visuals come from the renderer using ImGui's draw list.
-/// </summary>
 public class PartyBarsWindow : Window
 {
     private readonly KhRenderer renderer = new();
@@ -35,8 +29,7 @@ public class PartyBarsWindow : Window
     public override bool DrawConditions()
     {
         if (!Plugin.Config.Enabled) return false;
-        if (Plugin.ClientState.LocalPlayer is null) return false;
-        // TODO: respect HideInPvp / HideInCutscene via Condition flags
+        if (Plugin.Objects.LocalPlayer is null) return false;
         return true;
     }
 
@@ -73,15 +66,11 @@ public class PartyBarsWindow : Window
         renderer.DrawRoster(members);
     }
 
-    /// <summary>
-    /// Collect the party (or solo player) into a normalized roster the
-    /// renderer can consume without poking Dalamud APIs itself.
-    /// </summary>
     private static List<KhRosterEntry> BuildRoster()
     {
         var roster = new List<KhRosterEntry>(8);
         var party  = Plugin.PartyList;
-        var me     = Plugin.ClientState.LocalPlayer;
+        var me     = Plugin.Objects.LocalPlayer;
 
         if (party.Length == 0 && me is not null)
         {
@@ -91,7 +80,7 @@ public class PartyBarsWindow : Window
 
         foreach (var member in party)
         {
-            roster.Add(KhRosterEntry.FromPartyMember(member, isLocal: member.ObjectId == me?.ObjectId));
+            roster.Add(KhRosterEntry.FromPartyMember(member, isLocal: member.EntityId == me?.EntityId));
         }
         return roster;
     }

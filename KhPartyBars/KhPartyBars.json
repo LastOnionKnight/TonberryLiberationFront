@@ -1,5 +1,5 @@
 {
-  "Author": "Refia Rakkiri · The Last Onion Knight",
+  "Author": "Refia Rakkiri Â· The Last Onion Knight",
   "Name": "KH Party Bars",
   "InternalName": "KhPartyBars",
   "AssemblyVersion": "0.1.0.0",
@@ -11,7 +11,7 @@
   "IconUrl": "https://raw.githubusercontent.com/onionknight/KhPartyBars/main/images/icon.png",
   "Punchline": "Stab. Stab. Heal. Stab.",
   "AcceptsFeedback": true,
-  "DalamudApiLevel": 11,
+  "DalamudApiLevel": 15,
   "LoadRequiredState": 0,
   "LoadSync": false,
   "CanUnloadAsync": true,

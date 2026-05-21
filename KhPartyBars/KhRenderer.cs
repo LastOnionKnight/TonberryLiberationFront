@@ -1,4 +1,4 @@
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -6,7 +6,7 @@ using System.Numerics;
 namespace KhPartyBars;
 
 /// <summary>
-/// All the bar-drawing logic. Pure ImGui draw-list calls — no SVG, no
+/// All the bar-drawing logic. Pure ImGui draw-list calls â€” no SVG, no
 /// images for the chrome (so it scales with UiScale crisply). Layout
 /// mirrors the HTML/CSS design from the web mockup:
 /// [portrait]  [wing-name-tab + hp/mp bars + curl loop]  [lvl + hp%]
@@ -43,14 +43,14 @@ public sealed class KhRenderer
         var midW      = size.X - (portraitR * 2 + 6) - 64; // 64px end column
         var midRect   = new Vector4(midX, pos.Y, midW, size.Y);
 
-        // ── Portrait ──
+        // â”€â”€ Portrait â”€â”€
         DrawPortrait(dl, portraitC, portraitR, m);
 
-        // ── Wing name tab (top of mid column) ──
+        // â”€â”€ Wing name tab (top of mid column) â”€â”€
         if (cfg.ShowNameTab)
             DrawNameTab(dl, new Vector2(midX, pos.Y + 4), midW, m);
 
-        // ── HP / MP bar stack ──
+        // â”€â”€ HP / MP bar stack â”€â”€
         var barTop    = pos.Y + (cfg.ShowNameTab ? 18f : 4f);
         var hpRect    = new Vector4(midX, barTop, midW - 22, 12f);
         var mpRect    = new Vector4(midX, barTop + 13f, midW - 22, 5f);
@@ -58,14 +58,14 @@ public sealed class KhRenderer
         DrawHpBar(dl, hpRect, m);
         if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
 
-        // ── Curl loop terminator on HP bar's right end ──
+        // â”€â”€ Curl loop terminator on HP bar's right end â”€â”€
         if (cfg.ShowCurl)
             DrawCurl(dl, new Vector2(hpRect.X + hpRect.Z, hpRect.Y + hpRect.W * 0.5f), m);
 
-        // ── Level + HP% on the right ──
+        // â”€â”€ Level + HP% on the right â”€â”€
         DrawEndColumn(dl, new Vector2(pos.X + size.X - 60, pos.Y), 60, size.Y, m);
 
-        // ── Target ring around portrait if highlighted ──
+        // â”€â”€ Target ring around portrait if highlighted â”€â”€
         if (cfg.HighlightTarget && m.IsTarget)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
@@ -95,13 +95,13 @@ public sealed class KhRenderer
     private void DrawNameTab(ImDrawListPtr dl, Vector2 anchor, float maxW, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        var text = cfg.ShowJobInTab ? $"{m.Name} · {m.JobAbbr}" : m.Name;
+        var text = cfg.ShowJobInTab ? $"{m.Name} Â· {m.JobAbbr}" : m.Name;
         var pad  = new Vector2(6, 1.5f);
         var txtSize = ImGui.CalcTextSize(text) * 0.85f;
         var tabW    = MathF.Min(maxW, txtSize.X + pad.X * 2 + 10);
         var tabH    = txtSize.Y + pad.Y * 2;
 
-        // angled wing shape — polygon points: (0,0) → (tabW-10,0) → (tabW, tabH) → (0, tabH)
+        // angled wing shape â€” polygon points: (0,0) â†’ (tabW-10,0) â†’ (tabW, tabH) â†’ (0, tabH)
         Span<Vector2> poly = stackalloc Vector2[4];
         poly[0] = anchor;
         poly[1] = new Vector2(anchor.X + tabW - 10, anchor.Y);
@@ -226,7 +226,7 @@ public sealed class KhRenderer
         }
     }
 
-    // ── Color helpers ────────────────────────────────────────────────
+    // â”€â”€ Color helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private Vector4 RoleColor(KhRole role)
     {
         var cfg = Plugin.Config;
