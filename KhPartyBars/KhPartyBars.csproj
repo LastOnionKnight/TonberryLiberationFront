@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
+    <Configurations>Debug;Release</Configurations>
+    <PlatformTarget>x64</PlatformTarget>
+    <Version>0.1.0</Version>
+    <Description>Kingdom Hearts-style party bars for FFXIV — Onion Knight flavor.</Description>
+    <Authors>Refia Rakkiri · The Last Onion Knight</Authors>
+    <Company>Tonberry Liberation Front</Company>
+    <RootNamespace>KhPartyBars</RootNamespace>
+    <AssemblyName>KhPartyBars</AssemblyName>
+    <OutputType>Library</OutputType>
+    <Product>KH Party Bars</Product>
+    <Copyright>CC-BY-4.0</Copyright>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--
+      Standard Dalamud dev paths. Override DalamudLibPath via env or by setting
+      it in your local .csproj.user, e.g.
+        <DalamudLibPath>C:\Users\you\AppData\Roaming\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    -->
+    <DalamudLibPath Condition="'$(DalamudLibPath)' == ''">$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Dalamud">
+      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="FFXIVClientStructs">
+      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Lumina">
+      <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Lumina.Excel">
+      <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="KhPartyBars.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="images\icon.png"  CopyToOutputDirectory="PreserveNewest" Condition="Exists('images\icon.png')" />
+    <None Include="README.md"        CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

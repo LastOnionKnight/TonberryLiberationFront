@@ -1,0 +1,24 @@
+{
+  "$schema": "https://github.com/goatcorp/PluginDistD17/raw/main/repo.schema.json",
+  "_comment": "Single-plugin testing repo manifest. Paste the raw URL of this file into Dalamud's custom repository list.",
+  "plugins": [
+    {
+      "Author": "Refia Rakkiri · The Last Onion Knight",
+      "Name": "KH Party Bars",
+      "InternalName": "KhPartyBars",
+      "AssemblyVersion": "0.1.0.0",
+      "Description": "Kingdom Hearts-style party bars for FFXIV. Round portraits, wing name tabs, gradient HP bars, signature curl-loop, slim MP stripe. Reskinnable.",
+      "ApplicableVersion": "any",
+      "Tags": [ "UI", "Party", "Theme", "Cosmetic" ],
+      "CategoryTags": [ "UI" ],
+      "RepoUrl": "https://github.com/onionknight/KhPartyBars",
+      "DalamudApiLevel": 11,
+      "IsTestingExclusive": true,
+      "Punchline": "Stab. Stab. Heal. Stab.",
+      "DownloadLinkInstall": "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
+      "DownloadLinkTesting": "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
+      "DownloadLinkUpdate":  "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
+      "IconUrl": "https://raw.githubusercontent.com/onionknight/KhPartyBars/main/images/icon.png"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "Author": "Refia Rakkiri · The Last Onion Knight",
+  "Name": "KH Party Bars",
+  "InternalName": "KhPartyBars",
+  "AssemblyVersion": "0.1.0.0",
+  "Description": "Kingdom Hearts-style party bars for FFXIV. Replaces the default party list with rounded job portraits, angled wing name tabs, gradient HP bars with a signature curl-loop terminator, and a slim MP stripe. Onion Knight ember accent by default; reskinnable from the settings window.",
+  "ApplicableVersion": "any",
+  "Tags": [ "UI", "Party", "Theme", "Cosmetic" ],
+  "CategoryTags": [ "UI" ],
+  "RepoUrl": "https://github.com/onionknight/KhPartyBars",
+  "IconUrl": "https://raw.githubusercontent.com/onionknight/KhPartyBars/main/images/icon.png",
+  "Punchline": "Stab. Stab. Heal. Stab.",
+  "AcceptsFeedback": true,
+  "DalamudApiLevel": 11,
+  "LoadRequiredState": 0,
+  "LoadSync": false,
+  "CanUnloadAsync": true,
+  "LoadPriority": 0,
+  "IsTestingExclusive": true
+}
