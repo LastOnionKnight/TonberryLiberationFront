@@ -3,7 +3,7 @@
   "_comment": "Single-plugin testing repo manifest. Paste the raw URL of this file into Dalamud's custom repository list.",
   "plugins": [
     {
-      "Author": "Refia Rakkiri · The Last Onion Knight",
+      "Author": "Refia Rakkiri Ã‚Â· The Last Onion Knight",
       "Name": "KH Party Bars",
       "InternalName": "KhPartyBars",
       "AssemblyVersion": "0.1.0.0",
@@ -11,14 +11,14 @@
       "ApplicableVersion": "any",
       "Tags": [ "UI", "Party", "Theme", "Cosmetic" ],
       "CategoryTags": [ "UI" ],
-      "RepoUrl": "https://github.com/onionknight/KhPartyBars",
-      "DalamudApiLevel": 11,
+      "RepoUrl": "https://github.com/LastOnionKnight/TonberryLiberationFront",
+      "DalamudApiLevel": 15,
       "IsTestingExclusive": true,
       "Punchline": "Stab. Stab. Heal. Stab.",
-      "DownloadLinkInstall": "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
-      "DownloadLinkTesting": "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
-      "DownloadLinkUpdate":  "https://github.com/onionknight/KhPartyBars/releases/latest/download/latest.zip",
-      "IconUrl": "https://raw.githubusercontent.com/onionknight/KhPartyBars/main/images/icon.png"
+      "DownloadLinkInstall": "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/dist/latest.zip",
+      "DownloadLinkTesting": "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/dist/latest.zip",
+      "DownloadLinkUpdate":  "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/dist/latest.zip",
+      "IconUrl": "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/images/icon.png"
     }
   ]
 }
