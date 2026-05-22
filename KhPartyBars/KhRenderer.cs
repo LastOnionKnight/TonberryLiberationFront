@@ -37,7 +37,7 @@ public sealed class KhRenderer
         }
 
         // Reserve invisible space so the window auto-sizes correctly.
-        ImGui.Dummy(new Vector2(w, roster.Count * (h + gap)));
+        if (!Plugin.Config.EditMode) ImGui.Dummy(new Vector2(w, roster.Count * (h + gap)));
     }
 
     private void DrawRow(Vector2 pos, Vector2 size, KhRosterEntry m)

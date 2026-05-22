@@ -16,12 +16,12 @@ public sealed class WindowManager
         System.AddWindow(Player);
     }
 
-    public static bool ForceReposition;
+    public static int ForceReposition;
 
     public void Draw()
     {
         System.Draw();
-        ForceReposition = false;
+        if (ForceReposition > 0) ForceReposition--;
     }
     public void Dispose()
     {

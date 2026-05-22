@@ -56,8 +56,8 @@ public class PartyBarsWindow : Window
         var ppos = Plugin.Config.Position;
         var pdisp = ImGui.GetIO().DisplaySize;
         var pcond = ImGuiCond.FirstUseEver;
-        if (WindowManager.ForceReposition) pcond = ImGuiCond.Always;
-        if (pdisp.X > 1 && pdisp.Y > 1)
+        if (WindowManager.ForceReposition > 0) pcond = ImGuiCond.Always;
+        if (false)
         {
             var cx = System.Math.Clamp(ppos.X, 0f, System.MathF.Max(0f, pdisp.X - 80f));
             var cy = System.Math.Clamp(ppos.Y, 0f, System.MathF.Max(0f, pdisp.Y - 40f));
