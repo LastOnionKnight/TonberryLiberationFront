@@ -45,7 +45,7 @@ public sealed class KhRenderer
         var portraitR = size.Y * 0.5f;
         var portraitC = new Vector2(pos.X + portraitR, pos.Y + portraitR);
         var midX      = pos.X + portraitR * 2 + 6;
-        var midW      = size.X - (portraitR * 2 + 6) - 64; // 64px end column
+        var midW      = size.X - (portraitR * 2 + 6) - 8; // full-width bars in 0.1.2
         var midRect   = new Vector4(midX, pos.Y, midW, size.Y);
 
         // â”€â”€ Portrait â”€â”€
@@ -61,6 +61,18 @@ public sealed class KhRenderer
         var mpRect    = new Vector4(midX, barTop + 13f, midW - 22, 5f);
 
         DrawHpBar(dl, hpRect, m);
+        if (cfg.ShowHpPercent)
+        {
+            var pctTxt  = $"{(int)MathF.Round(m.HpFraction * 100)}%";
+            var pctFs   = ImGui.GetFontSize() * 0.8f;
+            var pctSize = ImGui.CalcTextSize(pctTxt) * 0.8f;
+            var pctPos  = new Vector2(hpRect.X + hpRect.Z - pctSize.X - 4f,
+                                      hpRect.Y + (hpRect.W - pctSize.Y) * 0.5f);
+            dl.AddText(ImGui.GetFont(), pctFs, pctPos + new Vector2(1, 1),
+                ImGui.GetColorU32(new Vector4(0, 0, 0, 0.75f)), pctTxt);
+            dl.AddText(ImGui.GetFont(), pctFs, pctPos,
+                ImGui.GetColorU32(new Vector4(1, 1, 1, 0.95f)), pctTxt);
+        }
         if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
 
         // â”€â”€ Curl loop terminator on HP bar's right end â”€â”€
@@ -68,7 +80,7 @@ public sealed class KhRenderer
             DrawCurl(dl, new Vector2(hpRect.X + hpRect.Z, hpRect.Y + hpRect.W * 0.5f), m);
 
         // â”€â”€ Level + HP% on the right â”€â”€
-        DrawEndColumn(dl, new Vector2(pos.X + size.X - 60, pos.Y), 60, size.Y, m);
+        // end column removed in 0.1.2: level is on the portrait, HP% is on the HP bar (KH layout)
 
         // â”€â”€ Target ring around portrait if highlighted â”€â”€
         if (cfg.HighlightTarget && m.GameObject is not null && m.GameObject.EntityId == Plugin.Targets.Target?.EntityId)
@@ -95,12 +107,27 @@ public sealed class KhRenderer
         var txtSize  = ImGui.CalcTextSize(label) * 0.85f;
         var txtPos   = c - txtSize * 0.5f;
         dl.AddText(ImGui.GetFont(), fontSize, txtPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 0.92f)), label);
+
+        if (cfg.ShowLevel)
+        {
+            var lvlTxt  = $"Lv{m.Level}";
+            var lvlFs   = ImGui.GetFontSize() * 0.72f;
+            var lvlSize = ImGui.CalcTextSize(lvlTxt) * 0.72f;
+            var lvlPos  = new Vector2(c.X - lvlSize.X * 0.5f, c.Y + r - lvlSize.Y - 1f);
+            var padXY   = new Vector2(3f, 1f);
+            dl.AddRectFilled(lvlPos - padXY, lvlPos + lvlSize + padXY,
+                ImGui.GetColorU32(new Vector4(0.03f, 0.04f, 0.06f, 0.9f)));
+            dl.AddText(ImGui.GetFont(), lvlFs, lvlPos + new Vector2(1, 1),
+                ImGui.GetColorU32(new Vector4(0, 0, 0, 0.8f)), lvlTxt);
+            dl.AddText(ImGui.GetFont(), lvlFs, lvlPos,
+                ImGui.GetColorU32(new Vector4(1, 1, 1, 0.96f)), lvlTxt);
+        }
     }
 
     private void DrawNameTab(ImDrawListPtr dl, Vector2 anchor, float maxW, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        var text = cfg.ShowJobInTab ? $"{m.Name} Â· {m.JobAbbr}" : m.Name;
+        var text = cfg.ShowJobInTab ? $"{m.Name} · {m.JobAbbr}" : m.Name;
         var pad  = new Vector2(6, 1.5f);
         var txtSize = ImGui.CalcTextSize(text) * 0.85f;
         var tabW    = MathF.Min(maxW, txtSize.X + pad.X * 2 + 10);
