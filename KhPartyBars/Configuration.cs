@@ -18,9 +18,11 @@ public class Configuration : IPluginConfiguration
     public bool HideInPvp { get; set; } = true;
     public bool HideInCutscene { get; set; } = true;
     public bool LockPosition { get; set; } = false;
+    public bool LockPlayerBar { get; set; } = false;
 
     // ── Position + sizing ───────────────────────────────────────────
     public Vector2 Position { get; set; } = new(80, 240);
+    public Vector2 PlayerBarPosition { get; set; } = new(600, 700);
     public int RowWidth { get; set; } = 320;
     public int RowHeight { get; set; } = 44;
     public int RowGap { get; set; } = 6;

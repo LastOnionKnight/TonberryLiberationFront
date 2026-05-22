@@ -30,6 +30,7 @@ public class PartyBarsWindow : Window
     {
         if (!Plugin.Config.Enabled) return false;
         if (Plugin.Objects.LocalPlayer is null) return false;
+        if (Plugin.PartyList.Length == 0) return false;
         return true;
     }
 
