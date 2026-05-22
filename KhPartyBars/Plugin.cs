@@ -70,23 +70,29 @@ public sealed class Plugin : IDalamudPlugin
     private void OnInfo(string cmd, string args)
     {
         var ver = typeof(Plugin).Assembly.GetName().Version;
-        Chat.Print($"[KH Party Bars] v{ver}");
         var disp = ImGui.GetIO().DisplaySize;
-        Chat.Print($"DisplaySize: {disp.X:0} x {disp.Y:0}");
-        Chat.Print($"Enabled={Config.Enabled}  EditMode={Config.EditMode}");
-        Chat.Print($"Party: {PartyList.Length} member(s)");
+        var sb = new System.Text.StringBuilder();
+        void Line(string s) { Chat.Print(s); sb.AppendLine(s); }
+
+        Line($"[KH Party Bars] v{ver}");
+        Line($"DisplaySize: {disp.X:0} x {disp.Y:0}");
+        Line($"Enabled={Config.Enabled}  EditMode={Config.EditMode}");
+        Line($"Party: {PartyList.Length} member(s)");
         var me = Objects.LocalPlayer;
         if (me is not null)
         {
             var e = KhRosterEntry.FromLocalPlayer(me, false);
-            Chat.Print($"Player: {e.Name}  {e.JobAbbr}  Lv{e.Level}");
+            Line($"Player: {e.Name}  {e.JobAbbr}  Lv{e.Level}");
         }
         else
         {
-            Chat.Print("Player: (not available)");
+            Line("Player: (not available)");
         }
-        Chat.Print($"Party bar: ({Config.Position.X:0}, {Config.Position.Y:0})  Lock={Config.LockPosition}");
-        Chat.Print($"Player bar: ({Config.PlayerBarPosition.X:0}, {Config.PlayerBarPosition.Y:0})  Lock={Config.LockPlayerBar}");
+        Line($"Party bar: ({Config.Position.X:0}, {Config.Position.Y:0})  Lock={Config.LockPosition}");
+        Line($"Player bar: ({Config.PlayerBarPosition.X:0}, {Config.PlayerBarPosition.Y:0})  Lock={Config.LockPlayerBar}");
+
+        KhPartyBars.Windows.WindowManager.PendingClipboard = sb.ToString();
+        Chat.Print("(copied to clipboard)");
     }
 
     public void Dispose()
