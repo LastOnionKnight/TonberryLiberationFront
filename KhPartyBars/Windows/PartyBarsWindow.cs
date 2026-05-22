@@ -47,8 +47,8 @@ public class PartyBarsWindow : Window
         var members = BuildRoster();
         var rowH    = Plugin.Config.RowHeight;
         var rowGap  = Plugin.Config.RowGap;
-        var width   = Plugin.Config.RowWidth;
-        var height  = members.Count == 0 ? 1 : members.Count * rowH + (members.Count - 1) * rowGap + 8;
+        var width   = Plugin.Config.RowWidth + 28;
+        var height  = members.Count == 0 ? 1 : members.Count * rowH + (members.Count - 1) * rowGap + 24;
 
         ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
         ImGui.SetNextWindowPos(Plugin.Config.Position, ImGuiCond.FirstUseEver);
