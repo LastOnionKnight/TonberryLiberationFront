@@ -13,7 +13,7 @@ namespace KhPartyBars;
 /// </summary>
 public sealed class KhRenderer
 {
-    public void DrawRoster(List<KhRosterEntry> roster)
+    public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null)
     {
         var cfg   = Plugin.Config;
         var scale = cfg.UiScale;
@@ -26,6 +26,11 @@ public sealed class KhRenderer
         {
             var rowPos = origin + new Vector2(0, i * (h + gap));
             DrawRow(rowPos, new Vector2(w, h), roster[i]);
+            ImGui.SetCursorScreenPos(rowPos);
+            if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
+                onActivate?.Invoke(roster[i]);
+            if (ImGui.IsItemHovered())
+                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
         }
 
         // Reserve invisible space so the window auto-sizes correctly.
@@ -66,7 +71,7 @@ public sealed class KhRenderer
         DrawEndColumn(dl, new Vector2(pos.X + size.X - 60, pos.Y), 60, size.Y, m);
 
         // â”€â”€ Target ring around portrait if highlighted â”€â”€
-        if (cfg.HighlightTarget && m.IsTarget)
+        if (cfg.HighlightTarget && m.GameObject is not null && m.GameObject.EntityId == Plugin.Targets.Target?.EntityId)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
             dl.AddCircle(portraitC, portraitR + 2.5f, emCol, 32, 2.5f);

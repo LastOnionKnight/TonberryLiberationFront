@@ -63,7 +63,13 @@ public class PartyBarsWindow : Window
     public override void Draw()
     {
         var members = BuildRoster();
-        renderer.DrawRoster(members);
+        renderer.DrawRoster(members, OnActivateRow);
+    }
+
+    private static void OnActivateRow(KhRosterEntry entry)
+    {
+        if (entry.GameObject is not null)
+            Plugin.Targets.Target = entry.GameObject;
     }
 
     private static List<KhRosterEntry> BuildRoster()

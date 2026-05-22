@@ -22,6 +22,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] public static IPluginLog             Log              { get; private set; } = null!;
     [PluginService] public static IDataManager           Data             { get; private set; } = null!;
     [PluginService] public static IObjectTable           Objects          { get; private set; } = null!;
+    [PluginService] public static ITargetManager         Targets          { get; private set; } = null!;
 
     public static Configuration Config { get; private set; } = null!;
     public static WindowManager WindowMgr { get; private set; } = null!;

@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
+using Dalamud.Game.ClientState.Objects.Types;
 using System;
 
 namespace KhPartyBars;
@@ -21,6 +22,7 @@ public sealed class KhRosterEntry
 
     public bool IsLocal  { get; init; }
     public bool IsTarget { get; init; }
+    public IGameObject? GameObject { get; init; }
 
     public float HpFraction => HpMax == 0 ? 0f : (float)Hp / HpMax;
     public float MpFraction => MpMax == 0 ? 0f : (float)Mp / MpMax;
@@ -38,6 +40,7 @@ public sealed class KhRosterEntry
             MpMax    = p.MaxMp,
             IsLocal  = true,
             IsTarget = isTarget,
+            GameObject = p,
         };
 
     public static KhRosterEntry FromPartyMember(IPartyMember m, bool isLocal)
@@ -53,6 +56,7 @@ public sealed class KhRosterEntry
             MpMax    = (uint)m.MaxMP,
             IsLocal  = isLocal,
             IsTarget = false,
+            GameObject = m.GameObject,
         };
 
     // Lumina ClassJob.Role: 1 = tank, 2 = melee dps, 3 = phys ranged, 4 = healer.
