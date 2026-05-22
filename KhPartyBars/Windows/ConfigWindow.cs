@@ -48,6 +48,16 @@ public class ConfigWindow : Window
             if (ImGui.Checkbox("Move bars (drag to position)", ref edit)) { cfg.EditMode = edit; dirty = true; }
             if (cfg.EditMode)
                 ImGui.TextDisabled("Drag each bar to move it. Uncheck when done.");
+            ImGui.Spacing();
+            int px = (int)cfg.Position.X;
+            if (ImGui.InputInt("Party bar X", ref px)) { cfg.Position = new Vector2(px, cfg.Position.Y); WindowManager.ForceReposition = true; dirty = true; }
+            int py = (int)cfg.Position.Y;
+            if (ImGui.InputInt("Party bar Y", ref py)) { cfg.Position = new Vector2(cfg.Position.X, py); WindowManager.ForceReposition = true; dirty = true; }
+            int lx = (int)cfg.PlayerBarPosition.X;
+            if (ImGui.InputInt("Player bar X", ref lx)) { cfg.PlayerBarPosition = new Vector2(lx, cfg.PlayerBarPosition.Y); WindowManager.ForceReposition = true; dirty = true; }
+            int ly = (int)cfg.PlayerBarPosition.Y;
+            if (ImGui.InputInt("Player bar Y", ref ly)) { cfg.PlayerBarPosition = new Vector2(cfg.PlayerBarPosition.X, ly); WindowManager.ForceReposition = true; dirty = true; }
+            if (ImGui.Button("Bring bars on-screen")) { cfg.Position = new Vector2(80, 240); cfg.PlayerBarPosition = new Vector2(200, 320); WindowManager.ForceReposition = true; dirty = true; }
         }
 
         if (ImGui.CollapsingHeader("Style", ImGuiTreeNodeFlags.DefaultOpen))

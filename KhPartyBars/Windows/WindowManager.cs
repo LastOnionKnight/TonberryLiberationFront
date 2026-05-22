@@ -16,7 +16,13 @@ public sealed class WindowManager
         System.AddWindow(Player);
     }
 
-    public void Draw() => System.Draw();
+    public static bool ForceReposition;
+
+    public void Draw()
+    {
+        System.Draw();
+        ForceReposition = false;
+    }
     public void Dispose()
     {
         System.RemoveAllWindows();

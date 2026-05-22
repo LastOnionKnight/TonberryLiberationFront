@@ -43,7 +43,7 @@ public class PlayerBarWindow : Window
             MaximumSize = new Vector2(800, 200),
         };
         Flags = DefaultFlags;
-        if (Plugin.Config.EditMode) Flags &= ~ImGuiWindowFlags.NoBackground;
+        if (Plugin.Config.EditMode) Flags &= ~(ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoTitleBar);
         if (Plugin.Config.LockPlayerBar && !Plugin.Config.EditMode)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 
@@ -55,6 +55,7 @@ public class PlayerBarWindow : Window
         var ppos = Plugin.Config.PlayerBarPosition;
         var pdisp = ImGui.GetIO().DisplaySize;
         var pcond = ImGuiCond.FirstUseEver;
+        if (WindowManager.ForceReposition) pcond = ImGuiCond.Always;
         if (pdisp.X > 1 && pdisp.Y > 1)
         {
             var cx = System.Math.Clamp(ppos.X, 0f, System.MathF.Max(0f, pdisp.X - 80f));
