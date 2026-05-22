@@ -1,4 +1,5 @@
 using Dalamud.Interface.Windowing;
+using Dalamud.Interface.Utility;
 using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.Numerics;
@@ -21,7 +22,6 @@ public class PlayerBarWindow : Window
         ImGuiWindowFlags.NoScrollbar      |
         ImGuiWindowFlags.NoScrollWithMouse|
         ImGuiWindowFlags.NoBackground     |
-        ImGuiWindowFlags.NoSavedSettings  |
         ImGuiWindowFlags.NoFocusOnAppearing|
         ImGuiWindowFlags.NoNavFocus;
 
@@ -49,9 +49,10 @@ public class PlayerBarWindow : Window
         var width  = Plugin.Config.RowWidth + 28;
         var height = rowH + 24;
 
+        ImGuiHelpers.ForceNextWindowMainViewport();
         ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
 
-        if (!Plugin.Config.EditMode || WindowManager.ForceReposition > 0)
+        if (WindowManager.ForceReposition > 0)
             ImGui.SetNextWindowPos(Plugin.Config.PlayerBarPosition, ImGuiCond.Always);
     }
 

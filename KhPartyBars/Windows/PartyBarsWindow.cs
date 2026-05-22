@@ -1,5 +1,6 @@
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
+using Dalamud.Interface.Utility;
 using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.Numerics;
@@ -22,7 +23,6 @@ public class PartyBarsWindow : Window
         ImGuiWindowFlags.NoScrollbar      |
         ImGuiWindowFlags.NoScrollWithMouse|
         ImGuiWindowFlags.NoBackground     |
-        ImGuiWindowFlags.NoSavedSettings  |
         ImGuiWindowFlags.NoFocusOnAppearing|
         ImGuiWindowFlags.NoNavFocus;
 
@@ -53,9 +53,10 @@ public class PartyBarsWindow : Window
         var width   = Plugin.Config.RowWidth + 28;
         var height  = members.Count == 0 ? 1 : members.Count * rowH + (members.Count - 1) * rowGap + 24;
 
+        ImGuiHelpers.ForceNextWindowMainViewport();
         ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
 
-        if (!Plugin.Config.EditMode || WindowManager.ForceReposition > 0)
+        if (WindowManager.ForceReposition > 0)
             ImGui.SetNextWindowPos(Plugin.Config.Position, ImGuiCond.Always);
     }
 
