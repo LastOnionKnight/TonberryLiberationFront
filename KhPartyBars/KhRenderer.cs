@@ -26,11 +26,14 @@ public sealed class KhRenderer
         {
             var rowPos = origin + new Vector2(0, i * (h + gap));
             DrawRow(rowPos, new Vector2(w, h), roster[i]);
+            if (!Plugin.Config.EditMode)
+            {
             ImGui.SetCursorScreenPos(rowPos);
             if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
                 onActivate?.Invoke(roster[i]);
             if (ImGui.IsItemHovered())
                 ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+            }
         }
 
         // Reserve invisible space so the window auto-sizes correctly.

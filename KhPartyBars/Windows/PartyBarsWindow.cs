@@ -30,7 +30,7 @@ public class PartyBarsWindow : Window
     {
         if (!Plugin.Config.Enabled) return false;
         if (Plugin.Objects.LocalPlayer is null) return false;
-        if (Plugin.PartyList.Length == 0) return false;
+        if (!Plugin.Config.EditMode && Plugin.PartyList.Length == 0) return false;
         return true;
     }
 
@@ -42,7 +42,8 @@ public class PartyBarsWindow : Window
             MaximumSize = new Vector2(800, 1000),
         };
         Flags = DefaultFlags;
-        if (Plugin.Config.LockPosition)
+        if (Plugin.Config.EditMode) Flags &= ~ImGuiWindowFlags.NoBackground;
+        if (Plugin.Config.LockPosition && !Plugin.Config.EditMode)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 
         var members = BuildRoster();
@@ -71,7 +72,7 @@ public class PartyBarsWindow : Window
 
     public override void PostDraw()
     {
-        if (!Plugin.Config.LockPosition)
+        if (!Plugin.Config.LockPosition || Plugin.Config.EditMode)
             Plugin.Config.Position = ImGui.GetWindowPos();
     }
 

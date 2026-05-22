@@ -43,7 +43,8 @@ public class PlayerBarWindow : Window
             MaximumSize = new Vector2(800, 200),
         };
         Flags = DefaultFlags;
-        if (Plugin.Config.LockPlayerBar)
+        if (Plugin.Config.EditMode) Flags &= ~ImGuiWindowFlags.NoBackground;
+        if (Plugin.Config.LockPlayerBar && !Plugin.Config.EditMode)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 
         var rowH   = Plugin.Config.RowHeight;
@@ -70,7 +71,7 @@ public class PlayerBarWindow : Window
 
     public override void PostDraw()
     {
-        if (!Plugin.Config.LockPlayerBar)
+        if (!Plugin.Config.LockPlayerBar || Plugin.Config.EditMode)
             Plugin.Config.PlayerBarPosition = ImGui.GetWindowPos();
     }
 

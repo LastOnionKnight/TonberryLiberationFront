@@ -19,6 +19,7 @@ public class Configuration : IPluginConfiguration
     public bool HideInCutscene { get; set; } = true;
     public bool LockPosition { get; set; } = false;
     public bool LockPlayerBar { get; set; } = false;
+    public bool EditMode { get; set; } = false;
 
     // ── Position + sizing ───────────────────────────────────────────
     public Vector2 Position { get; set; } = new(80, 240);

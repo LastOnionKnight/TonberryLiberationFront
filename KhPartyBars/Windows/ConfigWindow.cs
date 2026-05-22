@@ -44,6 +44,10 @@ public class ConfigWindow : Window
 
             bool lockPos = cfg.LockPosition;
             if (ImGui.Checkbox("Lock position", ref lockPos)) { cfg.LockPosition = lockPos; dirty = true; }
+            bool edit = cfg.EditMode;
+            if (ImGui.Checkbox("Move bars (drag to position)", ref edit)) { cfg.EditMode = edit; dirty = true; }
+            if (cfg.EditMode)
+                ImGui.TextDisabled("Drag each bar to move it. Uncheck when done.");
         }
 
         if (ImGui.CollapsingHeader("Style", ImGuiTreeNodeFlags.DefaultOpen))
