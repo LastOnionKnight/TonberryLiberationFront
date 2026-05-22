@@ -51,7 +51,21 @@ public class PlayerBarWindow : Window
         var height = rowH + 24;
 
         ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
-        ImGui.SetNextWindowPos(Plugin.Config.PlayerBarPosition, ImGuiCond.FirstUseEver);
+        var ppos = Plugin.Config.PlayerBarPosition;
+        var pdisp = ImGui.GetIO().DisplaySize;
+        var pcond = ImGuiCond.FirstUseEver;
+        if (pdisp.X > 1 && pdisp.Y > 1)
+        {
+            var cx = System.Math.Clamp(ppos.X, 0f, System.MathF.Max(0f, pdisp.X - 80f));
+            var cy = System.Math.Clamp(ppos.Y, 0f, System.MathF.Max(0f, pdisp.Y - 40f));
+            if (System.MathF.Abs(cx - ppos.X) > 1f || System.MathF.Abs(cy - ppos.Y) > 1f)
+            {
+                ppos = new Vector2(cx, cy);
+                Plugin.Config.PlayerBarPosition = ppos;
+                pcond = ImGuiCond.Always;
+            }
+        }
+        ImGui.SetNextWindowPos(ppos, pcond);
     }
 
     public override void PostDraw()
