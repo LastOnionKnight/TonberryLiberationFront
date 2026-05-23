@@ -92,7 +92,10 @@ public class PartyBarsWindow : Window
 
         foreach (var member in party)
         {
-            roster.Add(KhRosterEntry.FromPartyMember(member, isLocal: member.EntityId == me?.EntityId));
+            // v0.1.11: skip the local player - the dedicated PlayerBarWindow
+            // already draws self, so listing self here produced a duplicate bar.
+            if (me is not null && member.EntityId == me.EntityId) continue;
+            roster.Add(KhRosterEntry.FromPartyMember(member, isLocal: false));
         }
         return roster;
     }
