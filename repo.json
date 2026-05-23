@@ -1,0 +1,18 @@
+﻿{
+    "ApplicableVersion":  "*",
+    "DalamudApiLevel":  10,
+    "Description":  "TLF HUD v0.1 — Toolbar, Tactics Popout, layout editor",
+    "AssemblyVersion":  "0.1.0.0",
+    "Tags":  [
+                 "hud",
+                 "ui",
+                 "tonberry",
+                 "liberation"
+             ],
+    "Author":  "Refia Rakkiri",
+    "Name":  "Tonberry Liberation Front",
+    "RepoUrl":  "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/repo.json",
+    "InternalName":  "TonberryLiberationFront",
+    "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/TonberryLiberationFront.dll",
+    "DownloadLinkInstall":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/TonberryLiberationFront.dll"
+}
