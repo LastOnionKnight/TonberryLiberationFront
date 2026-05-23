@@ -23,6 +23,7 @@ public sealed class KhRosterEntry
     public bool IsLocal  { get; init; }
     public bool IsTarget { get; init; }
     public IGameObject? GameObject { get; init; }
+    public uint EntityId { get; init; }
 
     public float HpFraction => HpMax == 0 ? 0f : (float)Hp / HpMax;
     public float MpFraction => MpMax == 0 ? 0f : (float)Mp / MpMax;
@@ -41,6 +42,7 @@ public sealed class KhRosterEntry
             IsLocal  = true,
             IsTarget = isTarget,
             GameObject = p,
+            EntityId = p.EntityId,
         };
 
     public static KhRosterEntry FromPartyMember(IPartyMember m, bool isLocal)
@@ -57,6 +59,7 @@ public sealed class KhRosterEntry
             IsLocal  = isLocal,
             IsTarget = false,
             GameObject = m.GameObject,
+            EntityId = m.EntityId,
         };
 
     // Lumina ClassJob.Role: 1 = tank, 2 = melee dps, 3 = phys ranged, 4 = healer.

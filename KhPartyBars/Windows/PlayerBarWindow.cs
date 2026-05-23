@@ -68,6 +68,13 @@ public class PlayerBarWindow : Window
         if (me is null) return;
 
         var roster = new List<KhRosterEntry> { KhRosterEntry.FromLocalPlayer(me, isTarget: false) };
-        renderer.DrawRoster(roster);
+        renderer.DrawRoster(roster, OnActivateSelf);
+    }
+
+    private static void OnActivateSelf(KhRosterEntry entry)
+    {
+        var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+        if (obj is not null)
+            Plugin.Targets.Target = obj;
     }
 }

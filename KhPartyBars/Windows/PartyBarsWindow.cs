@@ -74,8 +74,9 @@ public class PartyBarsWindow : Window
 
     private static void OnActivateRow(KhRosterEntry entry)
     {
-        if (entry.GameObject is not null)
-            Plugin.Targets.Target = entry.GameObject;
+        var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+        if (obj is not null)
+            Plugin.Targets.Target = obj;
     }
 
     private static List<KhRosterEntry> BuildRoster()

@@ -86,7 +86,7 @@ public sealed class KhRenderer
         // end column removed in 0.1.2: level is on the portrait, HP% is on the HP bar (KH layout)
 
         // â”€â”€ Target ring around portrait if highlighted â”€â”€
-        if (cfg.HighlightTarget && m.GameObject is not null && m.GameObject.EntityId == Plugin.Targets.Target?.EntityId)
+        if (cfg.HighlightTarget && m.EntityId != 0 && m.EntityId == Plugin.Targets.Target?.EntityId)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
             dl.AddCircle(portraitC, portraitR + 2.5f, emCol, 32, 2.5f);
