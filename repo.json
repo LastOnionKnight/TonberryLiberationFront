@@ -1,4 +1,4 @@
-﻿{
+[{
     "ApplicableVersion":  "*",
     "DalamudApiLevel":  10,
     "Description":  "TLF HUD v0.1 — Toolbar, Tactics Popout, layout editor",
@@ -16,3 +16,4 @@
     "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/TonberryLiberationFront.dll",
     "DownloadLinkInstall":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/TonberryLiberationFront.dll"
 }
+]
