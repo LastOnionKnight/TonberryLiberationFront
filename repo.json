@@ -1,4 +1,4 @@
-{
+[{
     "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip",
     "ApplicableVersion":  "any",
     "DalamudApiLevel":  10,
@@ -17,4 +17,4 @@
     "AssemblyVersion":  "0.1.0.0",
     "RepoUrl":  "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/repo.json",
     "TestingAssemblyVersion":  "0.1.0.0"
-}
+}]
