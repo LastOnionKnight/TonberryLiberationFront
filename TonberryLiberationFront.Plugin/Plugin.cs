@@ -1,5 +1,6 @@
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using TonberryLiberationFront.Windows;
 using TonberryLiberationFront.Services;
@@ -11,6 +12,7 @@ public sealed class Plugin : IDalamudPlugin
 {
     public string Name => "Tonberry Liberation Front";
     public IDalamudPluginInterface PluginInterface { get; init; }
+    public WindowSystem WindowSystem = new("TonberryLiberationFront");
 
     private PluginCommandManager _commandManager = null!;
     private ToolbarWindow _toolbarWindow = null!;
@@ -36,11 +38,32 @@ public sealed class Plugin : IDalamudPlugin
         // Register commands
         _commandManager = new PluginCommandManager(this, _configService, _toolbarWindow, _tweaksPanel);
 
+        WindowSystem.AddWindow(_toolbarWindow);
+        WindowSystem.AddWindow(_tacticsPopoutWindow);
+        WindowSystem.AddWindow(_tweaksPanel);
+
+        PluginInterface.UiBuilder.Draw += DrawUI;
+        PluginInterface.UiBuilder.OpenMainUi += DrawConfigUI;
+
         DalamudServices.PluginLog.Information($"{Name} initialized (v0.1.0)");
+    }
+
+    private void DrawUI()
+    {
+        WindowSystem.Draw();
+    }
+
+    private void DrawConfigUI()
+    {
+        _tweaksPanel.IsOpen = true;
     }
 
     public void Dispose()
     {
+        WindowSystem.RemoveAllWindows();
+        PluginInterface.UiBuilder.Draw -= DrawUI;
+        PluginInterface.UiBuilder.OpenMainUi -= DrawConfigUI;
+
         _commandManager?.Dispose();
         _toolbarWindow?.Dispose();
         _tacticsPopoutWindow?.Dispose();
