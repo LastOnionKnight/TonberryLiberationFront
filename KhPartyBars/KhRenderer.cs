@@ -31,9 +31,12 @@ public sealed class KhRenderer
             ImGui.SetCursorScreenPos(rowPos);
             if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
                 onActivate?.Invoke(roster[i]);
-            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+            
+            bool isHovered = ImGui.IsItemHovered();
+            
+            if (isHovered && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
                 onContextMenu?.Invoke(roster[i]);
-            if (ImGui.IsItemHovered())
+            if (isHovered)
                 ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
             }
         }
