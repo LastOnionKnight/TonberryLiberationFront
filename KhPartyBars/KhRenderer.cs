@@ -13,7 +13,7 @@ namespace KhPartyBars;
 /// </summary>
 public sealed class KhRenderer
 {
-    public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null)
+    public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null, Action<KhRosterEntry>? onContextMenu = null)
     {
         var cfg   = Plugin.Config;
         var scale = cfg.UiScale;
@@ -31,6 +31,8 @@ public sealed class KhRenderer
             ImGui.SetCursorScreenPos(rowPos);
             if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
                 onActivate?.Invoke(roster[i]);
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                onContextMenu?.Invoke(roster[i]);
             if (ImGui.IsItemHovered())
                 ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
             }
