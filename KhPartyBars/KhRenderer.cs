@@ -32,12 +32,14 @@ public sealed class KhRenderer
             if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
                 onActivate?.Invoke(roster[i]);
             
-            bool isHovered = ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly);
-            
-            if (isHovered && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
-                onContextMenu?.Invoke(roster[i]);
-            if (isHovered)
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly))
                 ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                
+            if (ImGui.BeginPopupContextItem($"##khparty_context_{roster[i].EntityId}"))
+            {
+                onContextMenu?.Invoke(roster[i]);
+                ImGui.EndPopup();
+            }
             }
         }
 

@@ -10,7 +10,6 @@ namespace KhPartyBars.Windows;
 public class PartyBarsWindow : Window
 {
     private readonly KhRenderer renderer = new();
-    private KhRosterEntry? _contextMenuEntry = null;
 
     public PartyBarsWindow() : base("KH Party Bars##overlay", DefaultFlags)
     {
@@ -71,56 +70,36 @@ public class PartyBarsWindow : Window
     {
         var members = BuildRoster();
         renderer.DrawRoster(members, OnActivateRow, OnContextMenu);
-        
-        DrawContextMenu();
     }
 
     private void OnContextMenu(KhRosterEntry entry)
     {
-        _contextMenuEntry = entry;
-        ImGui.OpenPopup($"##khparty_context_{entry.EntityId}");
-    }
-
-    private void DrawContextMenu()
-    {
-        if (_contextMenuEntry == null) return;
-        
-        var popupId = $"##khparty_context_{_contextMenuEntry.EntityId}";
-        if (ImGui.BeginPopup(popupId))
+        if (ImGui.MenuItem($"Send Tell to {entry.Name}"))
         {
-            if (ImGui.MenuItem($"Send Tell to {_contextMenuEntry.Name}"))
-            {
-                Plugin.Chat.Print($"/tell {_contextMenuEntry.Name} ");
-                _contextMenuEntry = null;
-                ImGui.CloseCurrentPopup();
-            }
-            
-            ImGui.Separator();
-            
-            if (ImGui.MenuItem("Invite to Party"))
-            {
-                Plugin.Chat.Print($"/invite {_contextMenuEntry.Name}");
-                _contextMenuEntry = null;
-                ImGui.CloseCurrentPopup();
-            }
-            
-            if (ImGui.MenuItem("Add to Blacklist"))
-            {
-                Plugin.Chat.Print($"/blacklist add {_contextMenuEntry.Name}");
-                _contextMenuEntry = null;
-                ImGui.CloseCurrentPopup();
-            }
-            
-            ImGui.Separator();
-            
-            if (ImGui.MenuItem("Examine Profile"))
-            {
-                Plugin.Chat.Print($"/c {_contextMenuEntry.Name}");
-                _contextMenuEntry = null;
-                ImGui.CloseCurrentPopup();
-            }
-            
-            ImGui.EndPopup();
+            Plugin.Chat.Print($"/tell {entry.Name} ");
+            ImGui.CloseCurrentPopup();
+        }
+        
+        ImGui.Separator();
+        
+        if (ImGui.MenuItem("Invite to Party"))
+        {
+            Plugin.Chat.Print($"/invite {entry.Name}");
+            ImGui.CloseCurrentPopup();
+        }
+        
+        if (ImGui.MenuItem("Add to Blacklist"))
+        {
+            Plugin.Chat.Print($"/blacklist add {entry.Name}");
+            ImGui.CloseCurrentPopup();
+        }
+        
+        ImGui.Separator();
+        
+        if (ImGui.MenuItem("Examine Profile"))
+        {
+            Plugin.Chat.Print($"/c {entry.Name}");
+            ImGui.CloseCurrentPopup();
         }
     }
 
