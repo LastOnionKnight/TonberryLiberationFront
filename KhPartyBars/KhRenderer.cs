@@ -32,7 +32,7 @@ public sealed class KhRenderer
             if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
                 onActivate?.Invoke(roster[i]);
             
-            bool isHovered = ImGui.IsItemHovered();
+            bool isHovered = ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly);
             
             if (isHovered && ImGui.IsMouseClicked(ImGuiMouseButton.Right))
                 onContextMenu?.Invoke(roster[i]);
