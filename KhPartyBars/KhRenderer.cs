@@ -233,17 +233,12 @@ public sealed class KhRenderer
         var u32   = ImGui.GetColorU32(color);
 
         // entry stub (horizontal)
-        dl.AddLine(anchor, anchor + new Vector2(6, 0), u32, 3f);
+        dl.AddLine(anchor, anchor + new Vector2(8, 0), u32, 4f);
 
-        // big loop (radius 6) anchored above the bar
-        var center = anchor + new Vector2(8, -6);
-        dl.PathArcTo(center, 6f, 0.4f, 6.28f, 24);
-        dl.PathStroke(u32, ImDrawFlags.None, 3f);
-
-        // small inner curl (radius 3) to taste
-        var innerCenter = center + new Vector2(0, 1);
-        dl.PathArcTo(innerCenter, 3f, 0f, 4.7f, 16);
-        dl.PathStroke(u32, ImDrawFlags.None, 2.5f);
+        // big loop - upward curve (radius 12, from right to left-top)
+        var center = anchor + new Vector2(6, -12);
+        dl.PathArcTo(center, 12f, 0f, 3.14f, 32);  // Half circle: right to left, curving upward
+        dl.PathStroke(u32, ImDrawFlags.None, 4f);
     }
 
     private void DrawEndColumn(ImDrawListPtr dl, Vector2 origin, float w, float h, KhRosterEntry m)
