@@ -2,7 +2,7 @@
     "Author": "Refia Rakkiri · The Last Onion Knight",
     "Name": "KH Party Bars",
     "InternalName": "KhPartyBars",
-    "AssemblyVersion": "0.1.14.5",
+    "AssemblyVersion": "0.1.14.6",
     "Description": "Kingdom Hearts-style party bars for FFXIV. Replaces the default party list with rounded job portraits, angled wing name tabs, gradient HP bars with a signature curl-loop terminator, and a slim MP stripe. Onion Knight ember accent by default; reskinnable from the settings window.",
     "ApplicableVersion": "any",
     "Tags": [

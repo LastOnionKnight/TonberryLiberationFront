@@ -5,14 +5,11 @@ using System.Numerics;
 
 namespace KhPartyBars;
 
-/// <summary>
-/// All the bar-drawing logic. Pure ImGui draw-list calls â€” no SVG, no
-/// images for the chrome (so it scales with UiScale crisply). Layout
-/// mirrors the HTML/CSS design from the web mockup:
-/// [portrait]  [wing-name-tab + hp/mp bars + curl loop]  [lvl + hp%]
-/// </summary>
 public sealed class KhRenderer
 {
+    // Outline thickness for authentic KH style
+    private const float OutlineThick = 2.5f;
+
     public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null, Action<KhRosterEntry>? onContextMenu = null)
     {
         var cfg   = Plugin.Config;
@@ -28,22 +25,21 @@ public sealed class KhRenderer
             DrawRow(rowPos, new Vector2(w, h), roster[i]);
             if (!Plugin.Config.EditMode)
             {
-            ImGui.SetCursorScreenPos(rowPos);
-            if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
-                onActivate?.Invoke(roster[i]);
-            
-            if (ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly))
-                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                ImGui.SetCursorScreenPos(rowPos);
+                if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
+                    onActivate?.Invoke(roster[i]);
                 
-            if (ImGui.BeginPopupContextItem($"##khparty_context_{roster[i].EntityId}"))
-            {
-                onContextMenu?.Invoke(roster[i]);
-                ImGui.EndPopup();
-            }
+                if (ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly))
+                    ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                    
+                if (ImGui.BeginPopupContextItem($"##khparty_context_{roster[i].EntityId}"))
+                {
+                    onContextMenu?.Invoke(roster[i]);
+                    ImGui.EndPopup();
+                }
             }
         }
 
-        // Reserve invisible space so the window auto-sizes correctly.
         if (!Plugin.Config.EditMode) ImGui.Dummy(new Vector2(w, roster.Count * (h + gap)));
     }
 
@@ -55,68 +51,49 @@ public sealed class KhRenderer
         var portraitR = size.Y * 0.5f;
         var portraitC = new Vector2(pos.X + portraitR, pos.Y + portraitR);
         var midX      = pos.X + portraitR * 2 + 6;
-        var midW      = size.X - (portraitR * 2 + 6) - 8; // full-width bars in 0.1.2
-        var midRect   = new Vector4(midX, pos.Y, midW, size.Y);
+        var midW      = size.X - (portraitR * 2 + 6) - 16; 
 
-        // â”€â”€ Portrait â”€â”€
-        DrawPortrait(dl, portraitC, portraitR, m);
-
-        // â”€â”€ Wing name tab (top of mid column) â”€â”€
-        if (cfg.ShowNameTab)
-            DrawNameTab(dl, new Vector2(midX, pos.Y + 4), midW, m);
-
-        // â”€â”€ HP / MP bar stack â”€â”€
-        var barTop    = pos.Y + (cfg.ShowNameTab ? 18f : 4f);
-        var hpRect    = new Vector4(midX, barTop, midW - 22, 12f);
-        var mpRect    = new Vector4(midX, barTop + 13f, midW - 22, 5f);
-
-        DrawHpBar(dl, hpRect, m);
-        if (cfg.ShowHpPercent)
-        {
-            var pctTxt  = $"{(int)MathF.Round(m.HpFraction * 100)}%";
-            var pctFs   = ImGui.GetFontSize() * 0.8f;
-            var pctSize = ImGui.CalcTextSize(pctTxt) * 0.8f;
-            var pctPos  = new Vector2(hpRect.X + hpRect.Z - pctSize.X - 4f,
-                                      hpRect.Y + (hpRect.W - pctSize.Y) * 0.5f);
-            dl.AddText(ImGui.GetFont(), pctFs, pctPos + new Vector2(1, 1),
-                ImGui.GetColorU32(new Vector4(0, 0, 0, 0.75f)), pctTxt);
-            dl.AddText(ImGui.GetFont(), pctFs, pctPos,
-                ImGui.GetColorU32(new Vector4(1, 1, 1, 0.95f)), pctTxt);
-        }
-        if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
-
-        // â”€â”€ Curl loop terminator on HP bar's right end â”€â”€
-        if (cfg.ShowCurl)
-            DrawCurl(dl, new Vector2(hpRect.X + hpRect.Z, hpRect.Y + hpRect.W * 0.5f), m);
-
-        // â”€â”€ Level + HP% on the right â”€â”€
-        // end column removed in 0.1.2: level is on the portrait, HP% is on the HP bar (KH layout)
-
-        // â”€â”€ Target ring around portrait if highlighted â”€â”€
+        // 1. Target Ring & Portrait
         if (cfg.HighlightTarget && m.EntityId != 0 && m.EntityId == Plugin.Targets.Target?.EntityId)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
-            dl.AddCircle(portraitC, portraitR + 2.5f, emCol, 32, 2.5f);
+            dl.AddCircle(portraitC, portraitR + 2.5f, emCol, 32, 3.0f);
+        }
+        DrawPortrait(dl, portraitC, portraitR, m);
+
+        // Calculate Y positions for the stacked bars
+        // Green HP (bottom), Blue MP (middle), Orange Name (top)
+        var hpY = pos.Y + 22f;
+        var mpY = pos.Y + 12f;
+        var nameY = pos.Y;
+
+        var hpRect = new Vector4(midX + 24, hpY, midW - 24, 12f);
+        var mpRect = new Vector4(midX + 24, mpY, midW - 24, 10f);
+        var nameW = MathF.Min(midW - 40, 160f); // name tab width
+
+        // Draw from bottom to top
+        DrawHpBar(dl, hpRect, m);
+        if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
+        if (cfg.ShowNameTab) DrawNameTab(dl, new Vector2(midX, nameY), nameW, m);
+
+        // Curl loop terminator on HP bar's right end
+        if (cfg.ShowCurl)
+        {
+            DrawCurl(dl, new Vector2(hpRect.X + hpRect.Z, hpRect.Y + hpRect.W), m);
         }
     }
 
     private void DrawPortrait(ImDrawListPtr dl, Vector2 c, float r, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        // background disc
         dl.AddCircleFilled(c, r, ImGui.GetColorU32(new Vector4(0.05f, 0.06f, 0.08f, 1.0f)), 64);
-
-        // role / you ring
         var ring = m.IsLocal ? cfg.Accent : RoleColor(m.Role);
-        var ringCol = ImGui.GetColorU32(ring);
-        dl.AddCircle(c, r - 1f, ringCol, 64, 2.5f);
+        dl.AddCircle(c, r - 1f, ImGui.GetColorU32(ring), 64, 2.5f);
 
-        // job abbreviation (placeholder for an actual job-icon texture)
         var fontSize = ImGui.GetFontSize() * 0.85f;
         var label    = m.JobAbbr.Length > 3 ? m.JobAbbr[..3] : m.JobAbbr;
         var txtSize  = ImGui.CalcTextSize(label) * 0.85f;
-        var txtPos   = c - txtSize * 0.5f;
-        dl.AddText(ImGui.GetFont(), fontSize, txtPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 0.92f)), label);
+        dl.AddText(ImGui.GetFont(), fontSize, c - txtSize * 0.5f, ImGui.GetColorU32(new Vector4(1, 1, 1, 0.92f)), label);
 
         if (cfg.ShowLevel)
         {
@@ -124,146 +101,224 @@ public sealed class KhRenderer
             var lvlFs   = ImGui.GetFontSize() * 0.72f;
             var lvlSize = ImGui.CalcTextSize(lvlTxt) * 0.72f;
             var lvlPos  = new Vector2(c.X - lvlSize.X * 0.5f, c.Y + r - lvlSize.Y - 1f);
-            var padXY   = new Vector2(3f, 1f);
-            dl.AddRectFilled(lvlPos - padXY, lvlPos + lvlSize + padXY,
-                ImGui.GetColorU32(new Vector4(0.03f, 0.04f, 0.06f, 0.9f)));
-            dl.AddText(ImGui.GetFont(), lvlFs, lvlPos + new Vector2(1, 1),
-                ImGui.GetColorU32(new Vector4(0, 0, 0, 0.8f)), lvlTxt);
-            dl.AddText(ImGui.GetFont(), lvlFs, lvlPos,
-                ImGui.GetColorU32(new Vector4(1, 1, 1, 0.96f)), lvlTxt);
+            DrawTextWithOutline(dl, lvlTxt, lvlPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 1f)), lvlFs);
         }
-    }
-
-    private void DrawNameTab(ImDrawListPtr dl, Vector2 anchor, float maxW, KhRosterEntry m)
-    {
-        var cfg = Plugin.Config;
-        var text = cfg.ShowJobInTab ? $"{m.Name} · {m.JobAbbr}" : m.Name;
-        var pad  = new Vector2(6, 1.5f);
-        var txtSize = ImGui.CalcTextSize(text) * 0.85f;
-        var tabW    = MathF.Min(maxW, txtSize.X + pad.X * 2 + 10);
-        var tabH    = txtSize.Y + pad.Y * 2;
-
-        // angled wing shape â€” polygon points: (0,0) â†’ (tabW-10,0) â†’ (tabW, tabH) â†’ (0, tabH)
-        Span<Vector2> poly = stackalloc Vector2[4];
-        poly[0] = anchor;
-        poly[1] = new Vector2(anchor.X + tabW - 10, anchor.Y);
-        poly[2] = new Vector2(anchor.X + tabW,      anchor.Y + tabH);
-        poly[3] = new Vector2(anchor.X,             anchor.Y + tabH);
-
-        // fill + top border
-        var fill   = ImGui.GetColorU32(new Vector4(0, 0, 0, 0.78f));
-        var top    = ImGui.GetColorU32(cfg.Accent);
-        var polyArr = new Vector2[] { poly[0], poly[1], poly[2], poly[3] };
-        dl.AddConvexPolyFilled(ref polyArr[0], polyArr.Length, fill);
-        dl.AddLine(poly[0], poly[1], top, 1.5f);
-
-        dl.AddText(ImGui.GetFont(), ImGui.GetFontSize() * 0.85f,
-            anchor + new Vector2(pad.X, pad.Y),
-            ImGui.GetColorU32(new Vector4(0.92f, 0.94f, 0.96f, 1)), text);
     }
 
     private void DrawHpBar(ImDrawListPtr dl, Vector4 rect, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        var origin = new Vector2(rect.X, rect.Y);
-        var ext    = new Vector2(rect.Z, rect.W);
-
-        // background
-        var bg = ImGui.GetColorU32(new Vector4(0.02f, 0.03f, 0.06f, 1));
-        dl.AddRectFilled(origin, origin + ext, bg);
-        // outline
-        var oc = ImGui.GetColorU32(cfg.ColorBorder);
-        dl.AddRect(origin, origin + ext, oc);
-
-        // fill
+        var bg = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 1));
+        var fillCol = ImGui.GetColorU32(SolidHpColor(m.HpFraction));
+        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
+        
         var frac = MathF.Max(0, MathF.Min(1, m.HpFraction));
-        var fillW = ext.X * frac;
-        var (top, bot) = HpGradient(frac);
-        var topCol = ImGui.GetColorU32(top);
-        var botCol = ImGui.GetColorU32(bot);
-        dl.AddRectFilledMultiColor(origin, origin + new Vector2(fillW, ext.Y), topCol, topCol, botCol, botCol);
+        var fillW = rect.Z * frac;
 
-        // inner highlight strip
-        var hi = ImGui.GetColorU32(new Vector4(1f, 1f, 1f, 0.35f));
+        // Slant size
+        float s = 8f;
+        float h = rect.W;
+
+        // Main Bar geometry
+        Vector2[] mainBg = new Vector2[] {
+            new Vector2(rect.X - s, rect.Y + h),
+            new Vector2(rect.X, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y + h)
+        };
+        dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
+
         if (fillW > 0)
-            dl.AddLine(origin + new Vector2(0, 0.5f), origin + new Vector2(fillW, 0.5f), hi, 1f);
-
-        // shimmer band
-        if (cfg.ShimmerHpBar && fillW > 4)
         {
-            var t  = ((float)(ImGui.GetTime() * 0.3f) % 1f);
-            var bx = origin.X + (t * (fillW + 30) - 30);
-            var bw = 20f;
-            if (bx + bw > origin.X && bx < origin.X + fillW)
-            {
-                var shimmer = ImGui.GetColorU32(new Vector4(1, 1, 1, 0.25f));
-                dl.AddRectFilled(
-                    new Vector2(MathF.Max(bx, origin.X), origin.Y + 1),
-                    new Vector2(MathF.Min(bx + bw, origin.X + fillW), origin.Y + ext.Y - 1),
-                    shimmer);
-            }
+            Vector2[] mainFill = new Vector2[] {
+                new Vector2(rect.X - s, rect.Y + h),
+                new Vector2(rect.X, rect.Y),
+                new Vector2(rect.X + fillW, rect.Y),
+                new Vector2(rect.X + fillW - s * (1f - frac), rect.Y + h)
+            };
+            dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
+        }
+        
+        dl.AddPolyline(ref mainBg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+
+        // 3 Slanted Segments on the left
+        float segW = 6f;
+        float gap = 3f;
+        float currX = rect.X - s - gap;
+
+        for (int i = 0; i < 3; i++)
+        {
+            Vector2[] seg = new Vector2[] {
+                new Vector2(currX - segW - s, rect.Y + h),
+                new Vector2(currX - segW, rect.Y),
+                new Vector2(currX, rect.Y),
+                new Vector2(currX - s, rect.Y + h)
+            };
+            
+            dl.AddConvexPolyFilled(ref seg[0], 4, bg);
+            if (frac > 0.1f) // Just fill them if somewhat alive
+                dl.AddConvexPolyFilled(ref seg[0], 4, fillCol);
+                
+            dl.AddPolyline(ref seg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+            currX -= (segW + gap);
+        }
+
+        if (cfg.ShowHpPercent)
+        {
+            var pctTxt  = $"{(int)MathF.Round(m.HpFraction * 100)}%";
+            var pctFs   = ImGui.GetFontSize() * 0.8f;
+            var pctSize = ImGui.CalcTextSize(pctTxt) * 0.8f;
+            var pctPos  = new Vector2(rect.X + rect.Z - pctSize.X - 4f, rect.Y + (rect.W - pctSize.Y) * 0.5f);
+            DrawTextWithOutline(dl, pctTxt, pctPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 1f)), pctFs);
         }
     }
 
     private void DrawMpBar(ImDrawListPtr dl, Vector4 rect, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        var origin = new Vector2(rect.X, rect.Y);
-        var ext    = new Vector2(rect.Z, rect.W);
-        var bg = ImGui.GetColorU32(new Vector4(0.02f, 0.03f, 0.06f, 1));
-        dl.AddRectFilled(origin, origin + ext, bg);
-        dl.AddRect(origin, origin + ext, ImGui.GetColorU32(cfg.ColorBorder));
-
+        var bg = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 1));
+        var mpCol = cfg.ColorMp;
+        var fillCol = ImGui.GetColorU32(new Vector4(mpCol.X, mpCol.Y, mpCol.Z, 1.0f));
+        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
+        
         var frac = MathF.Max(0, MathF.Min(1, m.MpFraction));
-        var fillW = ext.X * frac;
-        var mp = cfg.ColorMp;
-        var top = ImGui.GetColorU32(new Vector4(mp.X * 1.4f, mp.Y * 1.4f, mp.Z * 1.4f, mp.W));
-        var bot = ImGui.GetColorU32(new Vector4(mp.X * 0.5f, mp.Y * 0.5f, mp.Z * 0.5f, mp.W));
-        dl.AddRectFilledMultiColor(origin, origin + new Vector2(fillW, ext.Y), top, top, bot, bot);
+        var fillW = rect.Z * frac;
+
+        float s = 6f; // slight slant
+        float h = rect.W;
+
+        Vector2[] mainBg = new Vector2[] {
+            new Vector2(rect.X - s, rect.Y + h),
+            new Vector2(rect.X, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y + h)
+        };
+        dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
+
+        if (fillW > 0)
+        {
+            Vector2[] mainFill = new Vector2[] {
+                new Vector2(rect.X - s, rect.Y + h),
+                new Vector2(rect.X, rect.Y),
+                new Vector2(rect.X + fillW, rect.Y),
+                new Vector2(rect.X + fillW - s * (1f - frac), rect.Y + h)
+            };
+            dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
+        }
+
+        dl.AddPolyline(ref mainBg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+
+        // 3 Slanted Segments on the left
+        float segW = 5f;
+        float gap = 2.5f;
+        float currX = rect.X - s - gap;
+
+        for (int i = 0; i < 3; i++)
+        {
+            Vector2[] seg = new Vector2[] {
+                new Vector2(currX - segW - s, rect.Y + h),
+                new Vector2(currX - segW, rect.Y),
+                new Vector2(currX, rect.Y),
+                new Vector2(currX - s, rect.Y + h)
+            };
+            dl.AddConvexPolyFilled(ref seg[0], 4, bg);
+            if (frac > 0.1f)
+                dl.AddConvexPolyFilled(ref seg[0], 4, fillCol);
+            dl.AddPolyline(ref seg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+            currX -= (segW + gap);
+        }
+
+        // MP Text
+        var txt = "MP";
+        var fs = ImGui.GetFontSize() * 0.7f;
+        var sz = ImGui.CalcTextSize(txt) * 0.7f;
+        var tPos = new Vector2(rect.X + rect.Z - sz.X - 4f, rect.Y + (h - sz.Y)*0.5f);
+        DrawTextWithOutline(dl, txt, tPos, ImGui.GetColorU32(new Vector4(1,1,1,1)), fs);
     }
 
-    /// <summary>
-    /// KH curl-loop: a thick arc that springs up off the right end of the
-    /// HP bar and loops back on itself. Drawn as a PathArcTo + PathStroke.
-    /// </summary>
+    private void DrawNameTab(ImDrawListPtr dl, Vector2 anchor, float w, KhRosterEntry m)
+    {
+        var cfg = Plugin.Config;
+        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
+        var orange = ImGui.GetColorU32(cfg.Accent); // using accent color as the drive bar color
+        var blackFill = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 1));
+        
+        float h = 14f;
+        float stepX = w * 0.6f;
+        float stepY = -4f; // goes UP by 4 pixels
+        float capW = 16f;
+
+        // Orange part polygon
+        Vector2[] poly = new Vector2[] {
+            new Vector2(anchor.X, anchor.Y + h),
+            new Vector2(anchor.X, anchor.Y),
+            new Vector2(anchor.X + stepX, anchor.Y),
+            new Vector2(anchor.X + w, anchor.Y + stepY),
+            new Vector2(anchor.X + w, anchor.Y + h)
+        };
+        dl.AddConvexPolyFilled(ref poly[0], 5, orange);
+        dl.AddPolyline(ref poly[0], 5, outline, ImDrawFlags.Closed, OutlineThick);
+
+        // Black Cap
+        Vector2[] cap = new Vector2[] {
+            new Vector2(anchor.X + w, anchor.Y + stepY),
+            new Vector2(anchor.X + w + capW, anchor.Y + stepY),
+            new Vector2(anchor.X + w + capW - 6f, anchor.Y + h),
+            new Vector2(anchor.X + w, anchor.Y + h)
+        };
+        dl.AddConvexPolyFilled(ref cap[0], 4, blackFill);
+        dl.AddPolyline(ref cap[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+
+        // Text: Name on left, Job on right
+        var nameTxt = m.Name;
+        var jobTxt = m.JobAbbr;
+        
+        DrawTextWithOutline(dl, nameTxt, anchor + new Vector2(4, 0), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.85f);
+        
+        var jobSz = ImGui.CalcTextSize(jobTxt) * 0.7f;
+        DrawTextWithOutline(dl, jobTxt, new Vector2(anchor.X + stepX - jobSz.X - 4, anchor.Y + 1), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.7f);
+    }
+
     private void DrawCurl(ImDrawListPtr dl, Vector2 anchor, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
-        var color = cfg.CurlMatchesHp ? HpGradient(m.HpFraction).top : cfg.Accent;
+        var color = cfg.CurlMatchesHp ? SolidHpColor(m.HpFraction) : cfg.Accent;
         var u32   = ImGui.GetColorU32(color);
+        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
 
-        // entry stub (horizontal)
-        dl.AddLine(anchor, anchor + new Vector2(8, 0), u32, 4f);
+        float radius = 16f;
+        float thickness = 10f; // thick loop
+        
+        // anchor is at the BOTTOM RIGHT of the HP bar.
+        var center = anchor + new Vector2(radius, -radius);
+        
+        // First draw outline (thicker)
+        dl.PathArcTo(center, radius, 1.57f, 1.57f + 4.71f, 40); // from bottom (pi/2) to almost full loop
+        dl.PathStroke(outline, ImDrawFlags.None, thickness + OutlineThick * 2);
 
-        // big loop - upward curve (radius 12, from right to left-top)
-        var center = anchor + new Vector2(6, -12);
-        dl.PathArcTo(center, 12f, 0f, 3.14f, 32);  // Half circle: right to left, curving upward
-        dl.PathStroke(u32, ImDrawFlags.None, 4f);
+        // Then draw inner fill
+        dl.PathArcTo(center, radius, 1.57f, 1.57f + 4.71f, 40);
+        dl.PathStroke(u32, ImDrawFlags.None, thickness);
+        
+        // Black connection piece from top of the loop down to the Drive bar cap
+        // The drive bar cap is slightly above and to the left
+        // We'll just drop a tiny vertical line
+        var topOfLoop = center + new Vector2(0, -radius);
+        dl.AddLine(topOfLoop, topOfLoop + new Vector2(0, 8), outline, OutlineThick + 1f);
     }
 
-    private void DrawEndColumn(ImDrawListPtr dl, Vector2 origin, float w, float h, KhRosterEntry m)
+    private void DrawTextWithOutline(ImDrawListPtr dl, string text, Vector2 pos, uint color, float fontSize)
     {
-        var cfg = Plugin.Config;
+        var outlineCol = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
         var font = ImGui.GetFont();
-
-        if (cfg.ShowLevel)
-        {
-            var lvl = $"Lv{m.Level}";
-            var size = ImGui.CalcTextSize(lvl) * 0.95f;
-            var pos = origin + new Vector2(w - size.X - 2, 4);
-            dl.AddText(font, ImGui.GetFontSize() * 0.95f, pos, ImGui.GetColorU32(cfg.Accent), lvl);
-        }
-        if (cfg.ShowHpPercent)
-        {
-            var pct = $"{(int)MathF.Round(m.HpFraction * 100)}%";
-            var size = ImGui.CalcTextSize(pct) * 0.85f;
-            var pos  = origin + new Vector2(w - size.X - 2, h - size.Y - 2);
-            dl.AddText(font, ImGui.GetFontSize() * 0.85f, pos,
-                ImGui.GetColorU32(new Vector4(0.7f, 0.78f, 0.86f, 1f)), pct);
-        }
+        // standard 4-way stroke
+        dl.AddText(font, fontSize, pos + new Vector2(-1, 0), outlineCol, text);
+        dl.AddText(font, fontSize, pos + new Vector2(1, 0), outlineCol, text);
+        dl.AddText(font, fontSize, pos + new Vector2(0, -1), outlineCol, text);
+        dl.AddText(font, fontSize, pos + new Vector2(0, 1), outlineCol, text);
+        dl.AddText(font, fontSize, pos, color, text);
     }
 
-    // â”€â”€ Color helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private Vector4 RoleColor(KhRole role)
     {
         var cfg = Plugin.Config;
@@ -276,16 +331,11 @@ public sealed class KhRenderer
         };
     }
 
-    private (Vector4 top, Vector4 bot) HpGradient(float frac)
+    private Vector4 SolidHpColor(float frac)
     {
         var cfg = Plugin.Config;
-        Vector4 baseCol;
-        if (frac > cfg.HpYellowAt)      baseCol = cfg.ColorHpGreen;
-        else if (frac > cfg.HpRedAt)    baseCol = cfg.ColorHpYellow;
-        else                            baseCol = cfg.ColorHpRed;
-
-        var top = new Vector4(MathF.Min(1, baseCol.X * 1.3f), MathF.Min(1, baseCol.Y * 1.3f), MathF.Min(1, baseCol.Z * 1.3f), baseCol.W);
-        var bot = new Vector4(baseCol.X * 0.45f, baseCol.Y * 0.45f, baseCol.Z * 0.45f, baseCol.W);
-        return (top, bot);
+        if (frac > cfg.HpYellowAt)      return cfg.ColorHpGreen;
+        else if (frac > cfg.HpRedAt)    return cfg.ColorHpYellow;
+        else                            return cfg.ColorHpRed;
     }
 }
