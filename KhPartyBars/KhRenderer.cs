@@ -47,10 +47,16 @@ public sealed class KhRenderer
         var dl    = ImGui.GetWindowDrawList();
         var cfg   = Plugin.Config;
 
-        var portraitR = size.Y * 0.5f;
-        var portraitC = new Vector2(pos.X + portraitR, pos.Y + portraitR);
-        var midX      = pos.X + portraitR * 2 + 6;
-        var midW      = size.X - (portraitR * 2 + 6) - 16; 
+        var portraitR = size.Y * 0.45f;
+        var portraitC = new Vector2(pos.X + portraitR + 10f, pos.Y + size.Y * 0.5f);
+        var r_inner = portraitR + 4f;
+        var hpThickness = 12f;
+        
+        var hpY = portraitC.Y + r_inner;
+        var mpY = hpY - 12f;
+
+        var barStartX = portraitC.X - 1f;
+        var midW      = size.X - portraitC.X - 24f; 
 
         // Target Ring & Portrait
         if (cfg.HighlightTarget && m.EntityId != 0 && m.EntityId == Plugin.Targets.Target?.EntityId)
@@ -60,29 +66,18 @@ public sealed class KhRenderer
         }
         DrawPortrait(dl, portraitC, portraitR, m);
 
-        // Y positions
-        var nameY = pos.Y + 2f;
-        var mpY = pos.Y + 16f;
-        var hpY = pos.Y + 28f;
-
-        var barStartX = midX + 24;
-        
         // Name Text above bars
         var nameTxt = m.Name;
-        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX + 36f, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
+        var nameY = mpY - 16f;
+        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX + 16f, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
 
-        // Bars (Growing left to right)
-        var hpRect = new Vector4(barStartX, hpY, midW - 48, 12f);
-        var mpRect = new Vector4(barStartX, mpY, midW - 40, 10f); // Wider to align right slant
+        // Bars
+        var hpRect = new Vector4(barStartX, hpY, midW - 48, hpThickness);
+        var mpStartX = portraitC.X + r_inner + 4f;
+        var mpRect = new Vector4(mpStartX, mpY, midW - 40 - (mpStartX - barStartX), 10f);
 
-        DrawHpBar(dl, hpRect, m);
+        DrawHpBar(dl, hpRect, portraitC, r_inner, m);
         if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
-
-        // Curl loop on LEFT of HP bar
-        if (cfg.ShowCurl)
-        {
-            DrawCurl(dl, new Vector2(hpRect.X, hpRect.Y + hpRect.W), m);
-        }
     }
 
     private void DrawPortrait(ImDrawListPtr dl, Vector2 c, float r, KhRosterEntry m)
@@ -107,7 +102,7 @@ public sealed class KhRenderer
         }
     }
 
-    private void DrawHpBar(ImDrawListPtr dl, Vector4 rect, KhRosterEntry m)
+    private void DrawHpBar(ImDrawListPtr dl, Vector4 rect, Vector2 portraitC, float r_inner, KhRosterEntry m)
     {
         var cfg = Plugin.Config;
         var bg = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 1));
@@ -119,29 +114,44 @@ public sealed class KhRenderer
 
         float s = 8f;
         float h = rect.W;
+        float r_center = r_inner + h / 2f;
 
-        // Main Bar (Left edge flat, Right edge slanted backward \)
+        // 1. Solid Black Outlines (Ring + Bar)
+        dl.PathArcTo(portraitC, r_center, MathF.PI / 2f, 3f * MathF.PI / 2f, 40);
+        dl.PathStroke(outline, ImDrawFlags.None, h + OutlineThick * 2);
+
+        Vector2[] hpBgOutline = new Vector2[] {
+            new Vector2(portraitC.X - 2f, rect.Y - OutlineThick),
+            new Vector2(rect.X + rect.Z - s + OutlineThick, rect.Y - OutlineThick),
+            new Vector2(rect.X + rect.Z + OutlineThick, rect.Y + h + OutlineThick),
+            new Vector2(portraitC.X - 2f, rect.Y + h + OutlineThick)
+        };
+        dl.AddConvexPolyFilled(ref hpBgOutline[0], 4, outline);
+
+        // 2. Dark Grey Background (Bar only)
         Vector2[] mainBg = new Vector2[] {
-            new Vector2(rect.X, rect.Y + h),
-            new Vector2(rect.X, rect.Y),
+            new Vector2(portraitC.X - 1f, rect.Y),
             new Vector2(rect.X + rect.Z - s, rect.Y),
-            new Vector2(rect.X + rect.Z, rect.Y + h)
+            new Vector2(rect.X + rect.Z, rect.Y + h),
+            new Vector2(portraitC.X - 1f, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
+
+        // 3. Green Fills (Ring + Bar)
+        dl.PathArcTo(portraitC, r_center, MathF.PI / 2f, 3f * MathF.PI / 2f, 40);
+        dl.PathStroke(fillCol, ImDrawFlags.None, h);
 
         if (fillW > 0)
         {
             float fillS = s * frac;
             Vector2[] mainFill = new Vector2[] {
-                new Vector2(rect.X, rect.Y + h),
-                new Vector2(rect.X, rect.Y),
+                new Vector2(portraitC.X - 1f, rect.Y),
                 new Vector2(rect.X + fillW - fillS, rect.Y),
-                new Vector2(rect.X + fillW, rect.Y + h)
+                new Vector2(rect.X + fillW, rect.Y + h),
+                new Vector2(portraitC.X - 1f, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
-        
-        dl.AddPolyline(ref mainBg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
 
         // Shield Segments on the right
         float segW = 6f;
@@ -225,36 +235,7 @@ public sealed class KhRenderer
         DrawTextWithOutline(dl, txt, tPos, ImGui.GetColorU32(new Vector4(1,1,1,1)), fs);
     }
 
-    private void DrawCurl(ImDrawListPtr dl, Vector2 anchor, KhRosterEntry m)
-    {
-        var cfg = Plugin.Config;
-        var color = cfg.CurlMatchesHp ? SolidHpColor(m.HpFraction) : cfg.Accent;
-        var u32   = ImGui.GetColorU32(color);
-        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
 
-        float radius = 16f;
-        float thickness = 10f;
-        
-        // anchor is at the BOTTOM LEFT of the HP bar.
-        // Center is straight up from the anchor
-        var center = anchor + new Vector2(0, -radius);
-        
-        // Shift right slightly so the outline overlaps the HP bar instead of leaving a gap
-        center.X += 8f;
-
-        // Draw left-facing "C"
-        // Start from top (4.71), clockwise to right (6.28), to bottom (7.85), to left (9.42)
-        float a_min = 4.71f;
-        float a_max = 9.42f;
-
-        // Outline
-        dl.PathArcTo(center, radius, a_min, a_max, 40);
-        dl.PathStroke(outline, ImDrawFlags.None, thickness + OutlineThick * 2);
-
-        // Inner fill
-        dl.PathArcTo(center, radius, a_min, a_max, 40);
-        dl.PathStroke(u32, ImDrawFlags.None, thickness);
-    }
 
     private void DrawTextWithOutline(ImDrawListPtr dl, string text, Vector2 pos, uint color, float fontSize)
     {
