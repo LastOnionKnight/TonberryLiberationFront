@@ -69,7 +69,7 @@ public sealed class KhRenderer
         
         // Name Text above bars
         var nameTxt = m.Name;
-        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
+        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX + 36f, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
 
         // Bars (Growing left to right)
         var hpRect = new Vector4(barStartX, hpY, midW - 48, 12f);
@@ -120,12 +120,12 @@ public sealed class KhRenderer
         float s = 8f;
         float h = rect.W;
 
-        // Main Bar (Left edge flat, Right edge slanted forward)
+        // Main Bar (Left edge flat, Right edge slanted backward \)
         Vector2[] mainBg = new Vector2[] {
             new Vector2(rect.X, rect.Y + h),
             new Vector2(rect.X, rect.Y),
-            new Vector2(rect.X + rect.Z, rect.Y),
-            new Vector2(rect.X + rect.Z - s, rect.Y + h)
+            new Vector2(rect.X + rect.Z - s, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
 
@@ -135,8 +135,8 @@ public sealed class KhRenderer
             Vector2[] mainFill = new Vector2[] {
                 new Vector2(rect.X, rect.Y + h),
                 new Vector2(rect.X, rect.Y),
-                new Vector2(rect.X + fillW, rect.Y),
-                new Vector2(rect.X + fillW - fillS, rect.Y + h)
+                new Vector2(rect.X + fillW - fillS, rect.Y),
+                new Vector2(rect.X + fillW, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
@@ -145,7 +145,7 @@ public sealed class KhRenderer
 
         // Shield Segments on the right
         float segW = 6f;
-        float gap = 3f;
+        float gap = 8f; // Increased gap to prevent 2.5f outlines from merging
         float currX = rect.X + rect.Z + gap;
         var shieldGold = ImGui.GetColorU32(new Vector4(1.0f, 0.84f, 0.0f, 1.0f));
 
@@ -157,10 +157,10 @@ public sealed class KhRenderer
         for (int i = 0; i < 3; i++)
         {
             Vector2[] seg = new Vector2[] {
-                new Vector2(currX - s, rect.Y + h),
-                new Vector2(currX, rect.Y),
-                new Vector2(currX + segW, rect.Y),
-                new Vector2(currX + segW - s, rect.Y + h)
+                new Vector2(currX, rect.Y + h),
+                new Vector2(currX - s, rect.Y),
+                new Vector2(currX + segW - s, rect.Y),
+                new Vector2(currX + segW, rect.Y + h)
             };
             
             dl.AddConvexPolyFilled(ref seg[0], 4, bg);
@@ -198,8 +198,8 @@ public sealed class KhRenderer
         Vector2[] mainBg = new Vector2[] {
             new Vector2(rect.X, rect.Y + h),
             new Vector2(rect.X, rect.Y),
-            new Vector2(rect.X + rect.Z, rect.Y),
-            new Vector2(rect.X + rect.Z - s, rect.Y + h)
+            new Vector2(rect.X + rect.Z - s, rect.Y),
+            new Vector2(rect.X + rect.Z, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
 
@@ -209,8 +209,8 @@ public sealed class KhRenderer
             Vector2[] mainFill = new Vector2[] {
                 new Vector2(rect.X, rect.Y + h),
                 new Vector2(rect.X, rect.Y),
-                new Vector2(rect.X + fillW, rect.Y),
-                new Vector2(rect.X + fillW - fillS, rect.Y + h)
+                new Vector2(rect.X + fillW - fillS, rect.Y),
+                new Vector2(rect.X + fillW, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
