@@ -68,7 +68,7 @@ public sealed class KhRenderer
         var nameY = pos.Y;
 
         var hpRect = new Vector4(midX + 24, hpY, midW - 24, 12f);
-        var mpRect = new Vector4(midX + 24, mpY, midW - 24, 10f);
+        var mpRect = new Vector4(midX + 30, mpY, midW - 30, 10f); // Shift right by 6 to align diagonal slant
         var nameW = MathF.Min(midW - 40, 160f); // name tab width
 
         // Draw from bottom to top
@@ -144,7 +144,7 @@ public sealed class KhRenderer
         // 3 Slanted Segments on the left
         float segW = 6f;
         float gap = 3f;
-        float currX = rect.X - s - gap;
+        float currX = rect.X - gap;
 
         for (int i = 0; i < 3; i++)
         {
@@ -211,7 +211,7 @@ public sealed class KhRenderer
         // 3 Slanted Segments on the left
         float segW = 5f;
         float gap = 2.5f;
-        float currX = rect.X - s - gap;
+        float currX = rect.X - gap;
 
         for (int i = 0; i < 3; i++)
         {
@@ -256,8 +256,6 @@ public sealed class KhRenderer
             new Vector2(anchor.X + w, anchor.Y + stepY),
             new Vector2(anchor.X + w, anchor.Y + h)
         };
-        dl.AddConvexPolyFilled(ref poly[0], 5, orange);
-        dl.AddPolyline(ref poly[0], 5, outline, ImDrawFlags.Closed, OutlineThick);
 
         // Black Cap
         Vector2[] cap = new Vector2[] {
@@ -266,8 +264,20 @@ public sealed class KhRenderer
             new Vector2(anchor.X + w + capW - 6f, anchor.Y + h),
             new Vector2(anchor.X + w, anchor.Y + h)
         };
+
+        // Combined Outline
+        Vector2[] combined = new Vector2[] {
+            new Vector2(anchor.X, anchor.Y + h),
+            new Vector2(anchor.X, anchor.Y),
+            new Vector2(anchor.X + stepX, anchor.Y),
+            new Vector2(anchor.X + w, anchor.Y + stepY),
+            new Vector2(anchor.X + w + capW, anchor.Y + stepY),
+            new Vector2(anchor.X + w + capW - 6f, anchor.Y + h)
+        };
+
+        dl.AddConvexPolyFilled(ref poly[0], 5, orange);
         dl.AddConvexPolyFilled(ref cap[0], 4, blackFill);
-        dl.AddPolyline(ref cap[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
+        dl.AddPolyline(ref combined[0], 6, outline, ImDrawFlags.Closed, OutlineThick);
 
         // Text: Name on left, Job on right
         var nameTxt = m.Name;
@@ -290,7 +300,8 @@ public sealed class KhRenderer
         float thickness = 10f; // thick loop
         
         // anchor is at the BOTTOM RIGHT of the HP bar.
-        var center = anchor + new Vector2(radius, -radius);
+        // Shift left by 8px so the thick outline overlaps instead of causing a gap
+        var center = anchor + new Vector2(radius - 8f, -radius);
         
         // First draw outline (thicker)
         dl.PathArcTo(center, radius, 1.57f, 1.57f + 4.71f, 40); // from bottom (pi/2) to almost full loop
