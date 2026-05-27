@@ -48,36 +48,41 @@ public sealed class KhRenderer
         var cfg   = Plugin.Config;
 
         var portraitR = size.Y * 0.45f;
-        var portraitC = new Vector2(pos.X + portraitR + 10f, pos.Y + size.Y * 0.5f);
-        var r_inner = portraitR + 4f;
+        var portraitC = new Vector2(pos.X + portraitR + 4f, pos.Y + size.Y * 0.5f);
+        var r_inner = portraitR; // Ring touches portrait
         var hpThickness = 12f;
         
         var hpY = portraitC.Y + r_inner;
         var mpY = hpY - 12f;
 
-        var barStartX = portraitC.X - 1f;
-        var midW      = size.X - portraitC.X - 24f; 
+        // HP Bar starts exactly at portrait center. Left half hidden by portrait.
+        var barStartX = portraitC.X;
+        
+        // Ensure width is always strictly positive
+        var availableW = size.X - (portraitC.X - pos.X);
+        var hpWidth = MathF.Max(20f, availableW - 32f); 
 
-        // Target Ring & Portrait
+        // Bars
+        var hpRect = new Vector4(barStartX, hpY, hpWidth, hpThickness);
+        var mpStartX = portraitC.X + r_inner * 0.8f; 
+        var mpRect = new Vector4(mpStartX, mpY, MathF.Max(10f, hpWidth - (mpStartX - barStartX) + 8f), 10f);
+
+        // 1. Draw Bars First (they go behind the portrait)
+        DrawHpBar(dl, hpRect, portraitC, r_inner, m);
+        if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
+
+        // 2. Draw Portrait (goes on top, hiding the bar origins and seams)
         if (cfg.HighlightTarget && m.EntityId != 0 && m.EntityId == Plugin.Targets.Target?.EntityId)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
-            dl.AddCircle(portraitC, portraitR + 2.5f, emCol, 32, 3.0f);
+            dl.AddCircle(portraitC, portraitR + 3.0f, emCol, 32, 4.0f);
         }
         DrawPortrait(dl, portraitC, portraitR, m);
 
-        // Name Text above bars
+        // 3. Name Text above bars
         var nameTxt = m.Name;
         var nameY = mpY - 16f;
-        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX + 16f, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
-
-        // Bars
-        var hpRect = new Vector4(barStartX, hpY, midW - 48, hpThickness);
-        var mpStartX = portraitC.X + r_inner + 4f;
-        var mpRect = new Vector4(mpStartX, mpY, midW - 40 - (mpStartX - barStartX), 10f);
-
-        DrawHpBar(dl, hpRect, portraitC, r_inner, m);
-        if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
+        DrawTextWithOutline(dl, nameTxt, new Vector2(portraitC.X + portraitR + 4f, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
     }
 
     private void DrawPortrait(ImDrawListPtr dl, Vector2 c, float r, KhRosterEntry m)
@@ -121,19 +126,19 @@ public sealed class KhRenderer
         dl.PathStroke(outline, ImDrawFlags.None, h + OutlineThick * 2);
 
         Vector2[] hpBgOutline = new Vector2[] {
-            new Vector2(portraitC.X - 2f, rect.Y - OutlineThick),
+            new Vector2(rect.X, rect.Y - OutlineThick),
             new Vector2(rect.X + rect.Z - s + OutlineThick, rect.Y - OutlineThick),
             new Vector2(rect.X + rect.Z + OutlineThick, rect.Y + h + OutlineThick),
-            new Vector2(portraitC.X - 2f, rect.Y + h + OutlineThick)
+            new Vector2(rect.X, rect.Y + h + OutlineThick)
         };
         dl.AddConvexPolyFilled(ref hpBgOutline[0], 4, outline);
 
         // 2. Dark Grey Background (Bar only)
         Vector2[] mainBg = new Vector2[] {
-            new Vector2(portraitC.X - 1f, rect.Y),
+            new Vector2(rect.X, rect.Y),
             new Vector2(rect.X + rect.Z - s, rect.Y),
             new Vector2(rect.X + rect.Z, rect.Y + h),
-            new Vector2(portraitC.X - 1f, rect.Y + h)
+            new Vector2(rect.X, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
 
@@ -145,10 +150,10 @@ public sealed class KhRenderer
         {
             float fillS = s * frac;
             Vector2[] mainFill = new Vector2[] {
-                new Vector2(portraitC.X - 1f, rect.Y),
+                new Vector2(rect.X, rect.Y),
                 new Vector2(rect.X + fillW - fillS, rect.Y),
                 new Vector2(rect.X + fillW, rect.Y + h),
-                new Vector2(portraitC.X - 1f, rect.Y + h)
+                new Vector2(rect.X, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
