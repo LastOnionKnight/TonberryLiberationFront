@@ -25,16 +25,23 @@ public sealed class KhRenderer
             if (!Plugin.Config.EditMode)
             {
                 ImGui.SetCursorScreenPos(rowPos);
-                if (ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h)))
+                
+                // Lay an interactive hit-box over the row that captures BOTH clicks
+                ImGui.InvisibleButton($"##khrow{i}", new Vector2(w, h), ImGuiButtonFlags.MouseButtonLeft | ImGuiButtonFlags.MouseButtonRight);
+                
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
                     onActivate?.Invoke(roster[i]);
                 
                 if (ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly))
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                     
-                if (ImGui.BeginPopupContextItem($"##khparty_context_{roster[i].EntityId}"))
+                if (onContextMenu != null)
                 {
-                    onContextMenu?.Invoke(roster[i]);
-                    ImGui.EndPopup();
+                    if (ImGui.BeginPopupContextItem($"##khparty_context_{roster[i].EntityId}"))
+                    {
+                        onContextMenu.Invoke(roster[i]);
+                        ImGui.EndPopup();
+                    }
                 }
             }
         }
@@ -236,7 +243,7 @@ public sealed class KhRenderer
         var txt = "MP";
         var fs = ImGui.GetFontSize() * 0.7f;
         var sz = ImGui.CalcTextSize(txt) * 0.7f;
-        var tPos = new Vector2(rect.X + rect.Z + 4f, rect.Y + (h - sz.Y)*0.5f);
+        var tPos = new Vector2(rect.X + rect.Z - sz.X - 10f, rect.Y + (h - sz.Y)*0.5f);
         DrawTextWithOutline(dl, txt, tPos, ImGui.GetColorU32(new Vector4(1,1,1,1)), fs);
     }
 

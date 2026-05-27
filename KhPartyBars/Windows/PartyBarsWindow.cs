@@ -74,31 +74,51 @@ public class PartyBarsWindow : Window
 
     private void OnContextMenu(KhRosterEntry entry)
     {
-        if (ImGui.MenuItem($"Send Tell to {entry.Name}"))
+        if (ImGui.MenuItem("Target"))
         {
-            Plugin.Chat.Print($"/tell {entry.Name} ");
+            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+            if (obj is not null) Plugin.Targets.Target = obj;
+            ImGui.CloseCurrentPopup();
+        }
+        
+        if (ImGui.MenuItem("Focus Target"))
+        {
+            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+            if (obj is not null) Plugin.Targets.FocusTarget = obj;
             ImGui.CloseCurrentPopup();
         }
         
         ImGui.Separator();
         
-        if (ImGui.MenuItem("Invite to Party"))
+        if (ImGui.MenuItem($"Examine {entry.Name} (Copy command)"))
         {
-            Plugin.Chat.Print($"/invite {entry.Name}");
+            var cmd = $"/c {entry.Name}";
+            ImGui.SetClipboardText(cmd);
+            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
             ImGui.CloseCurrentPopup();
         }
         
-        if (ImGui.MenuItem("Add to Blacklist"))
+        if (ImGui.MenuItem($"Send Tell to {entry.Name} (Copy command)"))
         {
-            Plugin.Chat.Print($"/blacklist add {entry.Name}");
+            var cmd = $"/tell {entry.Name} ";
+            ImGui.SetClipboardText(cmd);
+            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
+            ImGui.CloseCurrentPopup();
+        }
+
+        if (ImGui.MenuItem($"Invite {entry.Name} (Copy command)"))
+        {
+            var cmd = $"/invite {entry.Name}";
+            ImGui.SetClipboardText(cmd);
+            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
             ImGui.CloseCurrentPopup();
         }
         
-        ImGui.Separator();
-        
-        if (ImGui.MenuItem("Examine Profile"))
+        if (ImGui.MenuItem($"Promote {entry.Name} (Copy command)"))
         {
-            Plugin.Chat.Print($"/c {entry.Name}");
+            var cmd = $"/pcmd leader {entry.Name}";
+            ImGui.SetClipboardText(cmd);
+            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
             ImGui.CloseCurrentPopup();
         }
     }

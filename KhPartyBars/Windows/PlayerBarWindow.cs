@@ -68,7 +68,7 @@ public class PlayerBarWindow : Window
         if (me is null) return;
 
         var roster = new List<KhRosterEntry> { KhRosterEntry.FromLocalPlayer(me, isTarget: false) };
-        renderer.DrawRoster(roster, OnActivateSelf);
+        renderer.DrawRoster(roster, OnActivateSelf, OnContextMenu);
     }
 
     private static void OnActivateSelf(KhRosterEntry entry)
@@ -76,5 +76,32 @@ public class PlayerBarWindow : Window
         var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
         if (obj is not null)
             Plugin.Targets.Target = obj;
+    }
+
+    private void OnContextMenu(KhRosterEntry entry)
+    {
+        if (ImGui.MenuItem("Target Self"))
+        {
+            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+            if (obj is not null) Plugin.Targets.Target = obj;
+            ImGui.CloseCurrentPopup();
+        }
+        
+        if (ImGui.MenuItem("Focus Target Self"))
+        {
+            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
+            if (obj is not null) Plugin.Targets.FocusTarget = obj;
+            ImGui.CloseCurrentPopup();
+        }
+        
+        ImGui.Separator();
+        
+        if (ImGui.MenuItem($"Examine Self (Copy command)"))
+        {
+            var cmd = $"/c {entry.Name}";
+            ImGui.SetClipboardText(cmd);
+            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
+            ImGui.CloseCurrentPopup();
+        }
     }
 }
