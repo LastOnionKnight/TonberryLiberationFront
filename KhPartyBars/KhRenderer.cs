@@ -7,7 +7,6 @@ namespace KhPartyBars;
 
 public sealed class KhRenderer
 {
-    // Outline thickness for authentic KH style
     private const float OutlineThick = 2.5f;
 
     public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null, Action<KhRosterEntry>? onContextMenu = null)
@@ -53,7 +52,7 @@ public sealed class KhRenderer
         var midX      = pos.X + portraitR * 2 + 6;
         var midW      = size.X - (portraitR * 2 + 6) - 16; 
 
-        // 1. Target Ring & Portrait
+        // Target Ring & Portrait
         if (cfg.HighlightTarget && m.EntityId != 0 && m.EntityId == Plugin.Targets.Target?.EntityId)
         {
             var emCol = ImGui.GetColorU32(cfg.Accent);
@@ -61,25 +60,28 @@ public sealed class KhRenderer
         }
         DrawPortrait(dl, portraitC, portraitR, m);
 
-        // Calculate Y positions for the stacked bars
-        // Green HP (bottom), Blue MP (middle), Orange Name (top)
-        var hpY = pos.Y + 22f;
-        var mpY = pos.Y + 12f;
-        var nameY = pos.Y;
+        // Y positions
+        var nameY = pos.Y + 2f;
+        var mpY = pos.Y + 16f;
+        var hpY = pos.Y + 28f;
 
-        var hpRect = new Vector4(midX + 24, hpY, midW - 24, 12f);
-        var mpRect = new Vector4(midX + 30, mpY, midW - 30, 10f); // Shift right by 6 to align diagonal slant
-        var nameW = MathF.Min(midW - 40, 160f); // name tab width
+        var barStartX = midX + 24;
+        
+        // Name Text above bars
+        var nameTxt = m.Name;
+        DrawTextWithOutline(dl, nameTxt, new Vector2(barStartX, nameY), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.9f);
 
-        // Draw from bottom to top
+        // Bars (Growing left to right)
+        var hpRect = new Vector4(barStartX, hpY, midW - 48, 12f);
+        var mpRect = new Vector4(barStartX, mpY, midW - 40, 10f); // Wider to align right slant
+
         DrawHpBar(dl, hpRect, m);
         if (cfg.ShowMpBar) DrawMpBar(dl, mpRect, m);
-        if (cfg.ShowNameTab) DrawNameTab(dl, new Vector2(midX, nameY), nameW, m);
 
-        // Curl loop terminator on HP bar's right end
+        // Curl loop on LEFT of HP bar
         if (cfg.ShowCurl)
         {
-            DrawCurl(dl, new Vector2(hpRect.X + hpRect.Z, hpRect.Y + hpRect.W), m);
+            DrawCurl(dl, new Vector2(hpRect.X, hpRect.Y + hpRect.W), m);
         }
     }
 
@@ -115,52 +117,58 @@ public sealed class KhRenderer
         var frac = MathF.Max(0, MathF.Min(1, m.HpFraction));
         var fillW = rect.Z * frac;
 
-        // Slant size
         float s = 8f;
         float h = rect.W;
 
-        // Main Bar geometry
+        // Main Bar (Left edge flat, Right edge slanted forward)
         Vector2[] mainBg = new Vector2[] {
-            new Vector2(rect.X - s, rect.Y + h),
+            new Vector2(rect.X, rect.Y + h),
             new Vector2(rect.X, rect.Y),
             new Vector2(rect.X + rect.Z, rect.Y),
-            new Vector2(rect.X + rect.Z, rect.Y + h)
+            new Vector2(rect.X + rect.Z - s, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
 
         if (fillW > 0)
         {
+            float fillS = s * frac;
             Vector2[] mainFill = new Vector2[] {
-                new Vector2(rect.X - s, rect.Y + h),
+                new Vector2(rect.X, rect.Y + h),
                 new Vector2(rect.X, rect.Y),
                 new Vector2(rect.X + fillW, rect.Y),
-                new Vector2(rect.X + fillW - s * (1f - frac), rect.Y + h)
+                new Vector2(rect.X + fillW - fillS, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
         
         dl.AddPolyline(ref mainBg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
 
-        // 3 Slanted Segments on the left
+        // Shield Segments on the right
         float segW = 6f;
         float gap = 3f;
-        float currX = rect.X - gap;
+        float currX = rect.X + rect.Z + gap;
+        var shieldGold = ImGui.GetColorU32(new Vector4(1.0f, 0.84f, 0.0f, 1.0f));
+
+        int filledSegments = 0;
+        if (m.ShieldPercentage > 20) filledSegments = 3;
+        else if (m.ShieldPercentage > 10) filledSegments = 2;
+        else if (m.ShieldPercentage > 0) filledSegments = 1;
 
         for (int i = 0; i < 3; i++)
         {
             Vector2[] seg = new Vector2[] {
-                new Vector2(currX - segW - s, rect.Y + h),
-                new Vector2(currX - segW, rect.Y),
+                new Vector2(currX - s, rect.Y + h),
                 new Vector2(currX, rect.Y),
-                new Vector2(currX - s, rect.Y + h)
+                new Vector2(currX + segW, rect.Y),
+                new Vector2(currX + segW - s, rect.Y + h)
             };
             
             dl.AddConvexPolyFilled(ref seg[0], 4, bg);
-            if (frac > 0.1f) // Just fill them if somewhat alive
-                dl.AddConvexPolyFilled(ref seg[0], 4, fillCol);
+            if (i < filledSegments)
+                dl.AddConvexPolyFilled(ref seg[0], 4, shieldGold);
                 
             dl.AddPolyline(ref seg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
-            currX -= (segW + gap);
+            currX += (segW + gap);
         }
 
         if (cfg.ShowHpPercent)
@@ -168,7 +176,7 @@ public sealed class KhRenderer
             var pctTxt  = $"{(int)MathF.Round(m.HpFraction * 100)}%";
             var pctFs   = ImGui.GetFontSize() * 0.8f;
             var pctSize = ImGui.CalcTextSize(pctTxt) * 0.8f;
-            var pctPos  = new Vector2(rect.X + rect.Z - pctSize.X - 4f, rect.Y + (rect.W - pctSize.Y) * 0.5f);
+            var pctPos  = new Vector2(currX + 4f, rect.Y + (rect.W - pctSize.Y) * 0.5f);
             DrawTextWithOutline(dl, pctTxt, pctPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 1f)), pctFs);
         }
     }
@@ -184,109 +192,37 @@ public sealed class KhRenderer
         var frac = MathF.Max(0, MathF.Min(1, m.MpFraction));
         var fillW = rect.Z * frac;
 
-        float s = 6f; // slight slant
+        float s = 6.6f; 
         float h = rect.W;
 
         Vector2[] mainBg = new Vector2[] {
-            new Vector2(rect.X - s, rect.Y + h),
+            new Vector2(rect.X, rect.Y + h),
             new Vector2(rect.X, rect.Y),
             new Vector2(rect.X + rect.Z, rect.Y),
-            new Vector2(rect.X + rect.Z, rect.Y + h)
+            new Vector2(rect.X + rect.Z - s, rect.Y + h)
         };
         dl.AddConvexPolyFilled(ref mainBg[0], 4, bg);
 
         if (fillW > 0)
         {
+            float fillS = s * frac;
             Vector2[] mainFill = new Vector2[] {
-                new Vector2(rect.X - s, rect.Y + h),
+                new Vector2(rect.X, rect.Y + h),
                 new Vector2(rect.X, rect.Y),
                 new Vector2(rect.X + fillW, rect.Y),
-                new Vector2(rect.X + fillW - s * (1f - frac), rect.Y + h)
+                new Vector2(rect.X + fillW - fillS, rect.Y + h)
             };
             dl.AddConvexPolyFilled(ref mainFill[0], 4, fillCol);
         }
 
         dl.AddPolyline(ref mainBg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
 
-        // 3 Slanted Segments on the left
-        float segW = 5f;
-        float gap = 2.5f;
-        float currX = rect.X - gap;
-
-        for (int i = 0; i < 3; i++)
-        {
-            Vector2[] seg = new Vector2[] {
-                new Vector2(currX - segW - s, rect.Y + h),
-                new Vector2(currX - segW, rect.Y),
-                new Vector2(currX, rect.Y),
-                new Vector2(currX - s, rect.Y + h)
-            };
-            dl.AddConvexPolyFilled(ref seg[0], 4, bg);
-            if (frac > 0.1f)
-                dl.AddConvexPolyFilled(ref seg[0], 4, fillCol);
-            dl.AddPolyline(ref seg[0], 4, outline, ImDrawFlags.Closed, OutlineThick);
-            currX -= (segW + gap);
-        }
-
         // MP Text
         var txt = "MP";
         var fs = ImGui.GetFontSize() * 0.7f;
         var sz = ImGui.CalcTextSize(txt) * 0.7f;
-        var tPos = new Vector2(rect.X + rect.Z - sz.X - 4f, rect.Y + (h - sz.Y)*0.5f);
+        var tPos = new Vector2(rect.X + rect.Z + 4f, rect.Y + (h - sz.Y)*0.5f);
         DrawTextWithOutline(dl, txt, tPos, ImGui.GetColorU32(new Vector4(1,1,1,1)), fs);
-    }
-
-    private void DrawNameTab(ImDrawListPtr dl, Vector2 anchor, float w, KhRosterEntry m)
-    {
-        var cfg = Plugin.Config;
-        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
-        var orange = ImGui.GetColorU32(cfg.Accent); // using accent color as the drive bar color
-        var blackFill = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 1));
-        
-        float h = 14f;
-        float stepX = w * 0.6f;
-        float stepY = -4f; // goes UP by 4 pixels
-        float capW = 16f;
-
-        // Orange part polygon
-        Vector2[] poly = new Vector2[] {
-            new Vector2(anchor.X, anchor.Y + h),
-            new Vector2(anchor.X, anchor.Y),
-            new Vector2(anchor.X + stepX, anchor.Y),
-            new Vector2(anchor.X + w, anchor.Y + stepY),
-            new Vector2(anchor.X + w, anchor.Y + h)
-        };
-
-        // Black Cap
-        Vector2[] cap = new Vector2[] {
-            new Vector2(anchor.X + w, anchor.Y + stepY),
-            new Vector2(anchor.X + w + capW, anchor.Y + stepY),
-            new Vector2(anchor.X + w + capW - 6f, anchor.Y + h),
-            new Vector2(anchor.X + w, anchor.Y + h)
-        };
-
-        // Combined Outline
-        Vector2[] combined = new Vector2[] {
-            new Vector2(anchor.X, anchor.Y + h),
-            new Vector2(anchor.X, anchor.Y),
-            new Vector2(anchor.X + stepX, anchor.Y),
-            new Vector2(anchor.X + w, anchor.Y + stepY),
-            new Vector2(anchor.X + w + capW, anchor.Y + stepY),
-            new Vector2(anchor.X + w + capW - 6f, anchor.Y + h)
-        };
-
-        dl.AddConvexPolyFilled(ref poly[0], 5, orange);
-        dl.AddConvexPolyFilled(ref cap[0], 4, blackFill);
-        dl.AddPolyline(ref combined[0], 6, outline, ImDrawFlags.Closed, OutlineThick);
-
-        // Text: Name on left, Job on right
-        var nameTxt = m.Name;
-        var jobTxt = m.JobAbbr;
-        
-        DrawTextWithOutline(dl, nameTxt, anchor + new Vector2(4, 0), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.85f);
-        
-        var jobSz = ImGui.CalcTextSize(jobTxt) * 0.7f;
-        DrawTextWithOutline(dl, jobTxt, new Vector2(anchor.X + stepX - jobSz.X - 4, anchor.Y + 1), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize() * 0.7f);
     }
 
     private void DrawCurl(ImDrawListPtr dl, Vector2 anchor, KhRosterEntry m)
@@ -297,32 +233,33 @@ public sealed class KhRenderer
         var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
 
         float radius = 16f;
-        float thickness = 10f; // thick loop
+        float thickness = 10f;
         
-        // anchor is at the BOTTOM RIGHT of the HP bar.
-        // Shift left by 8px so the thick outline overlaps instead of causing a gap
-        var center = anchor + new Vector2(radius - 8f, -radius);
+        // anchor is at the BOTTOM LEFT of the HP bar.
+        // Center is straight up from the anchor
+        var center = anchor + new Vector2(0, -radius);
         
-        // First draw outline (thicker)
-        dl.PathArcTo(center, radius, 1.57f, 1.57f + 4.71f, 40); // from bottom (pi/2) to almost full loop
+        // Shift right slightly so the outline overlaps the HP bar instead of leaving a gap
+        center.X += 8f;
+
+        // Draw left-facing "C"
+        // Start from top (4.71), clockwise to right (6.28), to bottom (7.85), to left (9.42)
+        float a_min = 4.71f;
+        float a_max = 9.42f;
+
+        // Outline
+        dl.PathArcTo(center, radius, a_min, a_max, 40);
         dl.PathStroke(outline, ImDrawFlags.None, thickness + OutlineThick * 2);
 
-        // Then draw inner fill
-        dl.PathArcTo(center, radius, 1.57f, 1.57f + 4.71f, 40);
+        // Inner fill
+        dl.PathArcTo(center, radius, a_min, a_max, 40);
         dl.PathStroke(u32, ImDrawFlags.None, thickness);
-        
-        // Black connection piece from top of the loop down to the Drive bar cap
-        // The drive bar cap is slightly above and to the left
-        // We'll just drop a tiny vertical line
-        var topOfLoop = center + new Vector2(0, -radius);
-        dl.AddLine(topOfLoop, topOfLoop + new Vector2(0, 8), outline, OutlineThick + 1f);
     }
 
     private void DrawTextWithOutline(ImDrawListPtr dl, string text, Vector2 pos, uint color, float fontSize)
     {
         var outlineCol = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
         var font = ImGui.GetFont();
-        // standard 4-way stroke
         dl.AddText(font, fontSize, pos + new Vector2(-1, 0), outlineCol, text);
         dl.AddText(font, fontSize, pos + new Vector2(1, 0), outlineCol, text);
         dl.AddText(font, fontSize, pos + new Vector2(0, -1), outlineCol, text);
