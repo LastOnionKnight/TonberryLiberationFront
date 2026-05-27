@@ -78,30 +78,11 @@ public class PlayerBarWindow : Window
             Plugin.Targets.Target = obj;
     }
 
-    private void OnContextMenu(KhRosterEntry entry)
+    private unsafe void OnContextMenu(KhRosterEntry entry)
     {
-        if (ImGui.MenuItem("Target Self"))
-        {
-            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
-            if (obj is not null) Plugin.Targets.Target = obj;
-            ImGui.CloseCurrentPopup();
-        }
-        
-        if (ImGui.MenuItem("Focus Target Self"))
-        {
-            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
-            if (obj is not null) Plugin.Targets.FocusTarget = obj;
-            ImGui.CloseCurrentPopup();
-        }
-        
-        ImGui.Separator();
-        
-        if (ImGui.MenuItem($"Examine Self (Copy command)"))
-        {
-            var cmd = $"/c {entry.Name}";
-            ImGui.SetClipboardText(cmd);
-            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
-            ImGui.CloseCurrentPopup();
-        }
+        var agent = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentContext.Instance();
+        agent->TargetObjectId = entry.EntityId;
+        agent->OpenContextMenu(true, true);
+        ImGui.CloseCurrentPopup();
     }
 }

@@ -72,55 +72,12 @@ public class PartyBarsWindow : Window
         renderer.DrawRoster(members, OnActivateRow, OnContextMenu);
     }
 
-    private void OnContextMenu(KhRosterEntry entry)
+    private unsafe void OnContextMenu(KhRosterEntry entry)
     {
-        if (ImGui.MenuItem("Target"))
-        {
-            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
-            if (obj is not null) Plugin.Targets.Target = obj;
-            ImGui.CloseCurrentPopup();
-        }
-        
-        if (ImGui.MenuItem("Focus Target"))
-        {
-            var obj = entry.GameObject ?? Plugin.Objects.SearchByEntityId(entry.EntityId);
-            if (obj is not null) Plugin.Targets.FocusTarget = obj;
-            ImGui.CloseCurrentPopup();
-        }
-        
-        ImGui.Separator();
-        
-        if (ImGui.MenuItem($"Examine {entry.Name} (Copy command)"))
-        {
-            var cmd = $"/c {entry.Name}";
-            ImGui.SetClipboardText(cmd);
-            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
-            ImGui.CloseCurrentPopup();
-        }
-        
-        if (ImGui.MenuItem($"Send Tell to {entry.Name} (Copy command)"))
-        {
-            var cmd = $"/tell {entry.Name} ";
-            ImGui.SetClipboardText(cmd);
-            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
-            ImGui.CloseCurrentPopup();
-        }
-
-        if (ImGui.MenuItem($"Invite {entry.Name} (Copy command)"))
-        {
-            var cmd = $"/invite {entry.Name}";
-            ImGui.SetClipboardText(cmd);
-            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
-            ImGui.CloseCurrentPopup();
-        }
-        
-        if (ImGui.MenuItem($"Promote {entry.Name} (Copy command)"))
-        {
-            var cmd = $"/pcmd leader {entry.Name}";
-            ImGui.SetClipboardText(cmd);
-            Plugin.Chat.Print($"[KH Party Bars] Copied: {cmd} -> Press Enter and Paste!");
-            ImGui.CloseCurrentPopup();
-        }
+        var agent = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentContext.Instance();
+        agent->TargetObjectId = entry.EntityId;
+        agent->OpenContextMenu(true, true);
+        ImGui.CloseCurrentPopup();
     }
 
     private static void OnActivateRow(KhRosterEntry entry)

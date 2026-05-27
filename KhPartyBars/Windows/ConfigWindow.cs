@@ -91,14 +91,9 @@ public class ConfigWindow : Window
         if (ImGui.CollapsingHeader("Toggles", ImGuiTreeNodeFlags.DefaultOpen))
         {
             bool v0 = cfg.ShowMpBar;       if (ImGui.Checkbox("Show MP bar", ref v0)) { cfg.ShowMpBar = v0; dirty = true; }
-            bool v1 = cfg.ShowCurl;        if (ImGui.Checkbox("Show curl loop", ref v1)) { cfg.ShowCurl = v1; dirty = true; }
             bool v2 = cfg.ShowLevel;       if (ImGui.Checkbox("Show level", ref v2)) { cfg.ShowLevel = v2; dirty = true; }
             bool v3 = cfg.ShowHpPercent;   if (ImGui.Checkbox("Show HP %", ref v3)) { cfg.ShowHpPercent = v3; dirty = true; }
-            bool v4 = cfg.ShowJobInTab;    if (ImGui.Checkbox("Show job in name tab", ref v4)) { cfg.ShowJobInTab = v4; dirty = true; }
-            bool v5 = cfg.ShowNameTab;     if (ImGui.Checkbox("Show name tab", ref v5)) { cfg.ShowNameTab = v5; dirty = true; }
-            bool v6 = cfg.ShimmerHpBar;    if (ImGui.Checkbox("Animate HP shimmer", ref v6)) { cfg.ShimmerHpBar = v6; dirty = true; }
             bool v7 = cfg.HighlightTarget; if (ImGui.Checkbox("Highlight target", ref v7)) { cfg.HighlightTarget = v7; dirty = true; }
-            bool v8 = cfg.CurlMatchesHp;   if (ImGui.Checkbox("Curl color matches HP", ref v8)) { cfg.CurlMatchesHp = v8; dirty = true; }
         }
 
         if (dirty) cfg.Save();
