@@ -2,8 +2,8 @@
     "Author": "Refia Rakkiri · The Last Onion Knight",
     "Name": "KH Party Bars",
     "InternalName": "KhPartyBars",
-    "AssemblyVersion": "0.1.15.3",
-    "TestingAssemblyVersion": "0.1.15.3",
+    "AssemblyVersion": "0.1.15.4",
+    "TestingAssemblyVersion": "0.1.15.4",
     "Description": "Kingdom Hearts-style party bars for FFXIV with authentic vector aesthetic. Features round job portraits, angled Drive bar, layered HP/MP bars with slanted tails, prominent curl-loop, and thick black outlines.",
     "ApplicableVersion": "any",
     "Tags": ["UI", "Party", "Theme", "Cosmetic"],
@@ -12,8 +12,8 @@
     "DalamudApiLevel": 15,
     "IsTestingExclusive": true,
     "Punchline": "Stab. Stab. Heal. Stab.",
-    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.3/khpartybars-dropin-0.1.15.3.zip",
-    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.3/khpartybars-dropin-0.1.15.3.zip",
-    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.3/khpartybars-dropin-0.1.15.3.zip",
+    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.4/khpartybars-dropin-0.1.15.4.zip",
+    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.4/khpartybars-dropin-0.1.15.4.zip",
+    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/khpartybars-v0.1.15.4/khpartybars-dropin-0.1.15.4.zip",
     "IconUrl": "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/images/icon.png"
 }]

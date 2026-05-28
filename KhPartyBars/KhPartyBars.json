@@ -2,7 +2,7 @@
     "Author": "Refia Rakkiri · The Last Onion Knight",
     "Name": "KH Party Bars",
     "InternalName": "KhPartyBars",
-    "AssemblyVersion": "0.1.15.3",
+    "AssemblyVersion": "0.1.15.4",
     "Description": "Kingdom Hearts-style party bars for FFXIV with authentic vector aesthetic. Features round job portraits, angled Drive bar, layered HP/MP bars with slanted tails, prominent curl-loop, and thick black outlines.",
     "ApplicableVersion": "any",
     "Tags": ["UI", "Party", "Theme", "Cosmetic"],

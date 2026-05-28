@@ -26,7 +26,7 @@ public class Configuration : IPluginConfiguration
     public Vector2 PlayerBarPosition { get; set; } = new(600, 700);
     public int RowWidth { get; set; } = 320;
     public int RowHeight { get; set; } = 44;
-    public int RowGap { get; set; } = 6;
+    public int RowGap { get; set; } = 10;
     public float UiScale { get; set; } = 1.0f;
 
     // ── Accent + colors ─────────────────────────────────────────────
