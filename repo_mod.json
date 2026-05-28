@@ -1,0 +1,11 @@
+[
+  {
+    "Author": "TLF Steering Committee / Refia Rakkiri",
+    "Name": "Tonberry Liberation Front",
+    "Description": "A Frost-UI flavored theme + custom HUD plugin. Replaces the FFXIV chrome with vellum-on-indigo windows, swaps the player HP/MP for a Kingdom Hearts BBS-style ring.",
+    "Version": "0.1.0",
+    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-mod-v0.1.0/TonberryLiberationFront.pcp",
+    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-mod-v0.1.0/TonberryLiberationFront.pcp",
+    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-mod-v0.1.0/TonberryLiberationFront.pcp"
+  }
+]
