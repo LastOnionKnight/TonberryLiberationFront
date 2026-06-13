@@ -1,8 +1,8 @@
-using Dalamud.Interface.Windowing;
+﻿using Dalamud.Interface.Windowing;
 using Dalamud.Bindings.ImGui;
 using System.Numerics;
 
-namespace KhPartyBars.Windows;
+namespace TonberryLiberationFront.Plugin.Windows;
 
 public sealed class WindowManager
 {

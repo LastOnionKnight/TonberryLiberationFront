@@ -1,9 +1,9 @@
-using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.ClientState.Objects.Types;
 using System;
 
-namespace KhPartyBars;
+namespace TonberryLiberationFront.Plugin;
 
 public enum KhRole { Tank, Healer, Dps, Other }
 

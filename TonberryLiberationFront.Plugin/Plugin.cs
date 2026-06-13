@@ -1,74 +1,107 @@
+﻿using Dalamud.Game.Command;
+using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
-using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
-using TonberryLiberationFront.Windows;
-using TonberryLiberationFront.Services;
-using TonberryLiberationFront.Config;
+using TonberryLiberationFront.Plugin.Windows;
+using System;
+using Dalamud.Bindings.ImGui;
 
-namespace TonberryLiberationFront;
+namespace TonberryLiberationFront.Plugin;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public string Name => "Tonberry Liberation Front";
-    public IDalamudPluginInterface PluginInterface { get; init; }
-    public WindowSystem WindowSystem = new("TonberryLiberationFront");
+    public string Name => "KH Party Bars";
+    private const string ToggleCommand = "/khparty";
+    private const string ConfigCommand = "/khpartycfg";
+    private const string InfoCommand = "/khpbinfo";
 
-    private PluginCommandManager _commandManager = null!;
-    private ToolbarWindow _toolbarWindow = null!;
-    private TacticsPopoutWindow _tacticsPopoutWindow = null!;
-    private TweaksPanel _tweaksPanel = null!;
-    private ConfigService _configService = null!;
-    private DataService _dataService = null!;
+    [PluginService] public static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
+    [PluginService] public static ICommandManager        CommandManager   { get; private set; } = null!;
+    [PluginService] public static IPartyList             PartyList        { get; private set; } = null!;
+    [PluginService] public static IClientState           ClientState      { get; private set; } = null!;
+    [PluginService] public static IFramework             Framework        { get; private set; } = null!;
+    [PluginService] public static ITextureProvider       Textures         { get; private set; } = null!;
+    [PluginService] public static IPluginLog             Log              { get; private set; } = null!;
+    [PluginService] public static IDataManager           Data             { get; private set; } = null!;
+    [PluginService] public static IObjectTable           Objects          { get; private set; } = null!;
+    [PluginService] public static ITargetManager         Targets          { get; private set; } = null!;
+    [PluginService] public static IChatGui              Chat             { get; private set; } = null!;
 
-    public Plugin(IDalamudPluginInterface pluginInterface, IPluginLog pluginLog, ICommandManager commandManager, IChatGui chatGui)
+    public static Configuration Config { get; private set; } = null!;
+    public static WindowManager WindowMgr { get; private set; } = null!;
+
+    public Plugin()
     {
-        PluginInterface = pluginInterface;
-        DalamudServices.Initialize(pluginLog, commandManager, chatGui);
+        Config = Configuration.Load();
+        WindowMgr = new WindowManager();
 
-        // Init services
-        _configService = new ConfigService(PluginInterface);
-        _dataService = new DataService();
-        
-        // Init windows
-        _toolbarWindow = new ToolbarWindow(this, _dataService, _configService);
-        _tacticsPopoutWindow = new TacticsPopoutWindow(this, _dataService, _configService);
-        _tweaksPanel = new TweaksPanel(this, _configService);
+        PluginInterface.UiBuilder.Draw += WindowMgr.Draw;
+        PluginInterface.UiBuilder.OpenConfigUi += () => WindowMgr.Config.Toggle();
+        PluginInterface.UiBuilder.OpenMainUi += () => Config.Enabled = !Config.Enabled;
 
-        // Register commands
-        _commandManager = new PluginCommandManager(this, _configService, _toolbarWindow, _tweaksPanel);
+        CommandManager.AddHandler(ToggleCommand, new CommandInfo(OnToggle)
+        {
+            HelpMessage = "Toggle KH-style party bars on or off."
+        });
+        CommandManager.AddHandler(ConfigCommand, new CommandInfo(OnConfig)
+        {
+            HelpMessage = "Open the KH Party Bars configuration window."
+        });
 
-        WindowSystem.AddWindow(_toolbarWindow);
-        WindowSystem.AddWindow(_tacticsPopoutWindow);
-        WindowSystem.AddWindow(_tweaksPanel);
+        CommandManager.AddHandler(InfoCommand, new CommandInfo(OnInfo)
+        {
+            HelpMessage = "Print KH Party Bars version and diagnostics."
+        });
 
-        PluginInterface.UiBuilder.Draw += DrawUI;
-        PluginInterface.UiBuilder.OpenMainUi += DrawConfigUI;
-
-        DalamudServices.PluginLog.Information($"{Name} initialized (v0.1.0)");
+        Log.Info($"[{Name}] loaded. Enabled={Config.Enabled}.");
     }
 
-    private void DrawUI()
+    private void OnToggle(string cmd, string args)
     {
-        WindowSystem.Draw();
+        Config.Enabled = !Config.Enabled;
+        Config.Save();
     }
 
-    private void DrawConfigUI()
+    private void OnConfig(string cmd, string args)
     {
-        _tweaksPanel.IsOpen = true;
+        WindowMgr.Config.Toggle();
+    }
+
+    private void OnInfo(string cmd, string args)
+    {
+        var ver = typeof(Plugin).Assembly.GetName().Version;
+        var disp = ImGui.GetIO().DisplaySize;
+        var sb = new System.Text.StringBuilder();
+        void Line(string s) { Chat.Print(s); sb.AppendLine(s); }
+
+        Line($"[KH Party Bars] v{ver}");
+        Line($"DisplaySize: {disp.X:0} x {disp.Y:0}");
+        Line($"Enabled={Config.Enabled}  EditMode={Config.EditMode}");
+        Line($"Party: {PartyList.Length} member(s)");
+        var me = Objects.LocalPlayer;
+        if (me is not null)
+        {
+            var e = KhRosterEntry.FromLocalPlayer(me, false);
+            Line($"Player: {e.Name}  {e.JobAbbr}  Lv{e.Level}");
+        }
+        else
+        {
+            Line("Player: (not available)");
+        }
+        Line($"Party bar: ({Config.Position.X:0}, {Config.Position.Y:0})  Lock={Config.LockPosition}");
+        Line($"Player bar: ({Config.PlayerBarPosition.X:0}, {Config.PlayerBarPosition.Y:0})  Lock={Config.LockPlayerBar}");
+
+        TonberryLiberationFront.Plugin.Windows.WindowManager.PendingClipboard = sb.ToString();
+        Chat.Print("(copied to clipboard)");
     }
 
     public void Dispose()
     {
-        WindowSystem.RemoveAllWindows();
-        PluginInterface.UiBuilder.Draw -= DrawUI;
-        PluginInterface.UiBuilder.OpenMainUi -= DrawConfigUI;
-
-        _commandManager?.Dispose();
-        _toolbarWindow?.Dispose();
-        _tacticsPopoutWindow?.Dispose();
-        _tweaksPanel?.Dispose();
-        _dataService?.Dispose();
-        _configService?.Dispose();
+        PluginInterface.UiBuilder.Draw -= WindowMgr.Draw;
+        CommandManager.RemoveHandler(ToggleCommand);
+        CommandManager.RemoveHandler(ConfigCommand);
+        CommandManager.RemoveHandler(InfoCommand);
+        WindowMgr.Dispose();
     }
 }
+

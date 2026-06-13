@@ -1,1 +1,20 @@
-[{"DownloadLinkUpdate":"https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip","ApplicableVersion":"any","DalamudApiLevel":15,"Tags":["hud","ui","tonberry","liberation"],"Name":"Tonberry Liberation Front","Description":"TLF HUD v0.1 — Toolbar, Tactics Popout, layout editor","Author":"Refia Rakkiri","InternalName":"TonberryLiberationFront","DownloadLinkTesting":"https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip","DownloadLinkInstall":"https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip","AssemblyVersion":"0.1.0.0","RepoUrl":"https://github.com/LastOnionKnight/TonberryLiberationFront","TestingAssemblyVersion":"0.1.0.0"}]
+{
+    "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip",
+    "ApplicableVersion":  "any",
+    "DalamudApiLevel":  15,
+    "Tags":  [
+                 "hud",
+                 "ui",
+                 "tonberry",
+                 "liberation"
+             ],
+    "Name":  "Tonberry Liberation Front Suite",
+    "Description":  "TLF HUD v0.1 — Toolbar, Tactics Popout, layout editor",
+    "Author":  "Refia Rakkiri",
+    "InternalName":  "TonberryLiberationFront",
+    "DownloadLinkTesting":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip",
+    "DownloadLinkInstall":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v0.1.0.0/latest.zip",
+    "AssemblyVersion":  "2.0.0.0",
+    "RepoUrl":  "https://github.com/LastOnionKnight/TonberryLiberationFront",
+    "TestingAssemblyVersion":  "2.0.0.0"
+}

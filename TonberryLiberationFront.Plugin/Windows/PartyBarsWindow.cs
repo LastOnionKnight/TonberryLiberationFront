@@ -1,11 +1,11 @@
-using Dalamud.Game.ClientState.Party;
+﻿using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
 using Dalamud.Interface.Utility;
 using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace KhPartyBars.Windows;
+namespace TonberryLiberationFront.Plugin.Windows;
 
 public class PartyBarsWindow : Window
 {

@@ -1,9 +1,9 @@
-using Dalamud.Bindings.ImGui;
+﻿using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace KhPartyBars;
+namespace TonberryLiberationFront.Plugin;
 
 public sealed class KhRenderer
 {
@@ -280,3 +280,4 @@ public sealed class KhRenderer
         else                            return cfg.ColorHpRed;
     }
 }
+
