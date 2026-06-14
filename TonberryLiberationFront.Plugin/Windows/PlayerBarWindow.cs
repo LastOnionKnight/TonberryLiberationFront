@@ -1,4 +1,4 @@
-﻿using Dalamud.Interface.Windowing;
+using Dalamud.Interface.Windowing;
 using Dalamud.Interface.Utility;
 using Dalamud.Bindings.ImGui;
 using System.Collections.Generic;
@@ -6,51 +6,27 @@ using System.Numerics;
 
 namespace TonberryLiberationFront.Plugin.Windows;
 
-public class PlayerBarWindow : Window
+public class PlayerBarWindow : HudWidgetWindow
 {
     private readonly KhRenderer renderer = new();
 
-    public PlayerBarWindow() : base("KH Player Bar##player", DefaultFlags)
+    public PlayerBarWindow() : base("KH Player Bar##player", "player-frame")
     {
-        IsOpen = true;
-        DisableWindowSounds = true;
-        RespectCloseHotkey = false;
     }
 
-    private const ImGuiWindowFlags DefaultFlags =
-        ImGuiWindowFlags.NoTitleBar       |
-        ImGuiWindowFlags.NoScrollbar      |
-        ImGuiWindowFlags.NoScrollWithMouse|
-        ImGuiWindowFlags.NoBackground     |
-        ImGuiWindowFlags.NoFocusOnAppearing|
-        ImGuiWindowFlags.NoNavFocus;
-
-    public override bool DrawConditions()
-    {
-        if (!Plugin.Config.Enabled) return false;
-        if (Plugin.Objects.LocalPlayer is null) return false;
-        return true;
-    }
-
-    public override void PreDraw()
+    protected override void PreDrawWidget()
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(200, 60),
-            MaximumSize = new Vector2(800, 200),
+            MinimumSize = new Vector2(200, 200),
+            MaximumSize = new Vector2(200, 200),
         };
 
-        Flags = DefaultFlags;
-        if (Plugin.Config.EditMode) Flags &= ~ImGuiWindowFlags.NoBackground;
         if (Plugin.Config.LockPlayerBar && !Plugin.Config.EditMode)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 
-        var rowH   = Plugin.Config.RowHeight;
-        var width  = Plugin.Config.RowWidth + 28;
-        var height = rowH + 24;
-
-        ImGuiHelpers.ForceNextWindowMainViewport();
-        ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
+        Dalamud.Interface.Utility.ImGuiHelpers.ForceNextWindowMainViewport();
+        ImGui.SetNextWindowSize(new Vector2(200, 200) * Plugin.Config.UiScale, ImGuiCond.Always);
 
         if (WindowManager.ForceReposition > 0)
             ImGui.SetNextWindowPos(Plugin.Config.PlayerBarPosition, ImGuiCond.Always);
@@ -62,13 +38,33 @@ public class PlayerBarWindow : Window
             Plugin.Config.PlayerBarPosition = ImGui.GetWindowPos();
     }
 
-    public override void Draw()
+    protected override void DrawWidget()
     {
         var me = Plugin.Objects.LocalPlayer;
         if (me is null) return;
 
-        var roster = new List<KhRosterEntry> { KhRosterEntry.FromLocalPlayer(me, isTarget: false) };
-        renderer.DrawRoster(roster, OnActivateSelf, OnContextMenu);
+        var entry = KhRosterEntry.FromLocalPlayer(me, isTarget: false);
+        
+        var pos = ImGui.GetCursorScreenPos();
+        renderer.DrawPlayerFrame(pos, entry);
+
+        if (!Plugin.Config.EditMode)
+        {
+            ImGui.SetCursorScreenPos(pos);
+            ImGui.InvisibleButton($"##khplayer", new Vector2(200, 200), ImGuiButtonFlags.MouseButtonLeft | ImGuiButtonFlags.MouseButtonRight);
+            
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                OnActivateSelf(entry);
+                
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.RectOnly))
+                ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                
+            if (ImGui.BeginPopupContextItem($"##khparty_context_{entry.EntityId}"))
+            {
+                OnContextMenu(entry);
+                ImGui.EndPopup();
+            }
+        }
     }
 
     private static void OnActivateSelf(KhRosterEntry entry)

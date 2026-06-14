@@ -1,4 +1,4 @@
-﻿using Dalamud.Bindings.ImGui;
+using Dalamud.Bindings.ImGui;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -8,6 +8,111 @@ namespace TonberryLiberationFront.Plugin;
 public sealed class KhRenderer
 {
     private const float OutlineThick = 2.5f;
+
+    public void DrawPlayerFrame(Vector2 pos, KhRosterEntry m)
+    {
+        var dl = ImGui.GetWindowDrawList();
+        var center = pos + new Vector2(100, 100);
+        
+        // 1. Decorative Ember Rings
+        var emberColor = ImGui.GetColorU32(Plugin.Config.Accent);
+        dl.AddCircle(center, 90f, emberColor, 64, 1.5f);
+        dl.AddCircle(center, 94f, emberColor, 64, 1.0f);
+
+        // 2. HP Arc (Background & Fill)
+        var hpBg = ImGui.GetColorU32(new Vector4(0.05f, 0.05f, 0.05f, 0.8f));
+        var hpFill = ImGui.GetColorU32(SolidHpColor(m.HpFraction));
+        
+        float radMin = 138f * (MathF.PI / 180f);
+        float radMax = 418f * (MathF.PI / 180f);
+        float sweep = radMax - radMin;
+        float currentFillRad = radMin + (sweep * m.HpFraction);
+
+        // Background arc
+        dl.PathArcTo(center, 80f, radMin, radMax, 64);
+        dl.PathStroke(hpBg, ImDrawFlags.None, 12f);
+
+        // Fill arc
+        if (m.HpFraction > 0)
+        {
+            dl.PathArcTo(center, 80f, radMin, currentFillRad, 64);
+            dl.PathStroke(hpFill, ImDrawFlags.None, 12f);
+        }
+
+        // 3. Center Portrait
+        string texKey;
+        Vector4 glowBase;
+        float pulseSpeed = 0f;
+
+        if (m.HpFraction > 0.66f)
+        {
+            texKey = "portrait-combat";
+            glowBase = Plugin.Config.Accent; // Ember
+        }
+        else if (m.HpFraction > 0.33f)
+        {
+            texKey = "portrait-combat-alt";
+            glowBase = new Vector4(1f, 0.68f, 0.22f, 1f); // #FFAD38
+        }
+        else if (m.HpFraction > 0.10f)
+        {
+            texKey = "portrait-danger";
+            glowBase = new Vector4(1f, 0.35f, 0.24f, 1f); // #FF5A3C
+            pulseSpeed = 1.6f;
+        }
+        else
+        {
+            texKey = "portrait-danger-alt";
+            glowBase = new Vector4(1f, 0.16f, 0.12f, 1f); // #FF281E
+            pulseSpeed = 0.8f;
+        }
+
+        float alphaMult = 1f;
+        if (pulseSpeed > 0f)
+        {
+            // Sine wave from 0.4 to 1.0 based on pulse speed
+            float t = (float)ImGui.GetTime();
+            float sin = MathF.Sin(t * MathF.PI * 2f / pulseSpeed);
+            alphaMult = 0.7f + 0.3f * sin;
+        }
+
+        glowBase.W *= alphaMult;
+        var glowU32 = ImGui.GetColorU32(glowBase);
+
+        // Draw portrait orb background/glow
+        dl.AddCircleFilled(center, 66f, ImGui.GetColorU32(new Vector4(0.02f, 0.03f, 0.06f, 1f)), 64);
+        dl.AddCircle(center, 66f, glowU32, 64, 4f);
+
+        // Draw texture
+        if (Plugin.Assets.Textures.TryGetValue(texKey, out var tex))
+        {
+            var wrap = tex.GetWrapOrDefault();
+            if (wrap != null)
+            {
+                var pMin = center - new Vector2(66f, 66f);
+                var pMax = center + new Vector2(66f, 66f);
+                
+                // Push clip rect to keep image inside orb
+                ImGui.PushClipRect(pMin, pMax, true);
+                dl.AddImage(wrap.Handle, pMin, pMax);
+                ImGui.PopClipRect();
+            }
+        }
+
+        // 4. MP Bar (Linear bar below portrait)
+        var mpY = center.Y + 70f;
+        var mpWidth = 100f;
+        var mpRect = new Vector4(center.X - mpWidth / 2f, mpY, mpWidth, 8f);
+        DrawMpBar(dl, mpRect, m);
+
+        // 5. Text overlays (HP/MP numbers)
+        if (Plugin.Config.ShowHpPercent)
+        {
+            var hpTxt = $"{(int)(m.HpFraction * 100)}%";
+            var hpSize = ImGui.CalcTextSize(hpTxt);
+            DrawTextWithOutline(dl, hpTxt, center - new Vector2(hpSize.X / 2f, -40f), ImGui.GetColorU32(new Vector4(1,1,1,1)), ImGui.GetFontSize());
+        }
+    }
 
     public void DrawRoster(List<KhRosterEntry> roster, Action<KhRosterEntry>? onActivate = null, Action<KhRosterEntry>? onContextMenu = null)
     {
@@ -201,6 +306,34 @@ public sealed class KhRenderer
             var pctPos  = new Vector2(currX + 4f, rect.Y + (rect.W - pctSize.Y) * 0.5f);
             DrawTextWithOutline(dl, pctTxt, pctPos, ImGui.GetColorU32(new Vector4(1, 1, 1, 1f)), pctFs);
         }
+
+        if (Plugin.Config.UseKhCurl)
+        {
+            DrawKhCurl(dl, new Vector2(rect.X + rect.Z, rect.Y), fillCol);
+        }
+    }
+
+    private void DrawKhCurl(ImDrawListPtr dl, Vector2 anchorPos, uint color)
+    {
+        var p = anchorPos + new Vector2(0, -8f);
+        var outline = ImGui.GetColorU32(new Vector4(0, 0, 0, 1));
+        
+        void BuildPath()
+        {
+            dl.PathLineTo(p + new Vector2(0, 18));
+            dl.PathLineTo(p + new Vector2(4, 18));
+            dl.PathBezierCubicCurveTo(p + new Vector2(8, 18), p + new Vector2(12, 18), p + new Vector2(14, 16));
+            dl.PathBezierCubicCurveTo(p + new Vector2(16, 14), p + new Vector2(16, 10), p + new Vector2(14, 8));
+            dl.PathBezierCubicCurveTo(p + new Vector2(12, 6), p + new Vector2(8, 6), p + new Vector2(6, 8));
+            dl.PathBezierCubicCurveTo(p + new Vector2(4, 10), p + new Vector2(4, 12), p + new Vector2(6, 14));
+            dl.PathBezierCubicCurveTo(p + new Vector2(7, 15), p + new Vector2(9, 15), p + new Vector2(10, 14));
+        }
+
+        BuildPath();
+        dl.PathStroke(outline, ImDrawFlags.None, 4f + OutlineThick * 2f);
+
+        BuildPath();
+        dl.PathStroke(color, ImDrawFlags.None, 4f);
     }
 
     private void DrawMpBar(ImDrawListPtr dl, Vector4 rect, KhRosterEntry m)

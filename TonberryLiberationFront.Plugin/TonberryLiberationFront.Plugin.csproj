@@ -17,6 +17,7 @@
     <None Include="TonberryLiberationFront.Plugin.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="images\icon.png"  CopyToOutputDirectory="PreserveNewest" Condition="Exists('images\icon.png')" />
     <None Include="README.md"        CopyToOutputDirectory="PreserveNewest" Condition="Exists('README.md')" />
+    <Content Include="Resources\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

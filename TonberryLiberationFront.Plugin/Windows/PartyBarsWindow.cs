@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Party;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.Windowing;
 using Dalamud.Interface.Utility;
 using Dalamud.Bindings.ImGui;
@@ -7,34 +7,22 @@ using System.Numerics;
 
 namespace TonberryLiberationFront.Plugin.Windows;
 
-public class PartyBarsWindow : Window
+public class PartyBarsWindow : HudWidgetWindow
 {
     private readonly KhRenderer renderer = new();
 
-    public PartyBarsWindow() : base("KH Party Bars##overlay", DefaultFlags)
+    public PartyBarsWindow() : base("KH Party Bars##overlay", "party")
     {
-        IsOpen = true;
-        DisableWindowSounds = true;
-        RespectCloseHotkey = false;
     }
-
-    private const ImGuiWindowFlags DefaultFlags =
-        ImGuiWindowFlags.NoTitleBar       |
-        ImGuiWindowFlags.NoScrollbar      |
-        ImGuiWindowFlags.NoScrollWithMouse|
-        ImGuiWindowFlags.NoBackground     |
-        ImGuiWindowFlags.NoFocusOnAppearing|
-        ImGuiWindowFlags.NoNavFocus;
 
     public override bool DrawConditions()
     {
-        if (!Plugin.Config.Enabled) return false;
-        if (Plugin.Objects.LocalPlayer is null) return false;
+        if (!base.DrawConditions()) return false;
         if (!Plugin.Config.EditMode && Plugin.PartyList.Length == 0) return false;
         return true;
     }
 
-    public override void PreDraw()
+    protected override void PreDrawWidget()
     {
         SizeConstraints = new WindowSizeConstraints
         {
@@ -42,8 +30,6 @@ public class PartyBarsWindow : Window
             MaximumSize = new Vector2(800, 1000),
         };
 
-        Flags = DefaultFlags;
-        if (Plugin.Config.EditMode) Flags &= ~ImGuiWindowFlags.NoBackground;
         if (Plugin.Config.LockPosition && !Plugin.Config.EditMode)
             Flags |= ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize;
 
@@ -53,7 +39,7 @@ public class PartyBarsWindow : Window
         var width   = Plugin.Config.RowWidth + 28;
         var height  = members.Count == 0 ? 1 : members.Count * rowH + (members.Count - 1) * rowGap + 24;
 
-        ImGuiHelpers.ForceNextWindowMainViewport();
+        Dalamud.Interface.Utility.ImGuiHelpers.ForceNextWindowMainViewport();
         ImGui.SetNextWindowSize(new Vector2(width, height) * Plugin.Config.UiScale, ImGuiCond.Always);
 
         if (WindowManager.ForceReposition > 0)
@@ -66,7 +52,7 @@ public class PartyBarsWindow : Window
             Plugin.Config.Position = ImGui.GetWindowPos();
     }
 
-    public override void Draw()
+    protected override void DrawWidget()
     {
         var members = BuildRoster();
         renderer.DrawRoster(members, OnActivateRow, OnContextMenu);

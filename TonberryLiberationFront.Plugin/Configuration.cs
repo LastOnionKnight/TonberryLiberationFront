@@ -1,4 +1,4 @@
-﻿using Dalamud.Configuration;
+using Dalamud.Configuration;
 using System;
 using System.Numerics;
 
@@ -11,9 +11,9 @@ namespace TonberryLiberationFront.Plugin;
 [Serializable]
 public class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
 
-    // â”€â”€ Master toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Master toggle ────────────────────────────────────────────────────────
     public bool Enabled { get; set; } = true;
     public bool HideInPvp { get; set; } = true;
     public bool HideInCutscene { get; set; } = true;
@@ -21,7 +21,7 @@ public class Configuration : IPluginConfiguration
     public bool LockPlayerBar { get; set; } = false;
     public bool EditMode { get; set; } = false;
 
-    // â”€â”€ Position + sizing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Position + sizing ────────────────────────────────────────────────────
     public Vector2 Position { get; set; } = new(80, 240);
     public Vector2 PlayerBarPosition { get; set; } = new(600, 700);
     public int RowWidth { get; set; } = 320;
@@ -29,7 +29,8 @@ public class Configuration : IPluginConfiguration
     public int RowGap { get; set; } = 10;
     public float UiScale { get; set; } = 1.0f;
 
-    // â”€â”€ Accent + colors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Accent + colors ──────────────────────────────────────────────────────
+    public string AccentPreset { get; set; } = "ember";
     /// <summary>Accent color (Onion Knight ember default).</summary>
     public Vector4 Accent { get; set; } = new(0.84f, 0.48f, 0.24f, 1.00f);
 
@@ -45,7 +46,8 @@ public class Configuration : IPluginConfiguration
     public Vector4 ColorRoleHealer { get; set; } = new(0.53f, 0.80f, 0.32f, 1.00f);
     public Vector4 ColorRoleDps    { get; set; } = new(0.80f, 0.32f, 0.32f, 1.00f);
 
-    // â”€â”€ Toggles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Toggles ──────────────────────────────────────────────────────────────
+    public bool UseKhCurl       { get; set; } = true;
     public bool ShowMpBar       { get; set; } = true;
     public bool ShowLevel       { get; set; } = true;
     public bool ShowHpPercent   { get; set; } = true;
@@ -53,7 +55,7 @@ public class Configuration : IPluginConfiguration
     public bool PortraitColorByRole { get; set; } = true;
     public bool UseDalamudFontForName { get; set; } = false;
 
-    // â”€â”€ HP thresholds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── HP thresholds ────────────────────────────────────────────────────────
     public float HpYellowAt { get; set; } = 0.60f;
     public float HpRedAt    { get; set; } = 0.30f;
 
@@ -61,7 +63,15 @@ public class Configuration : IPluginConfiguration
 
     public static Configuration Load()
     {
-        return Plugin.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        var cfg = Plugin.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        if (cfg.Version == 1)
+        {
+            cfg.AccentPreset = "ember";
+            cfg.UseKhCurl = true;
+            cfg.Version = 2;
+            cfg.Save();
+        }
+        return cfg;
     }
 }
 
