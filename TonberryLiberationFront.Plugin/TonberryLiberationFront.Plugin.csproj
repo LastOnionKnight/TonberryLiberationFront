@@ -3,18 +3,18 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Version>2.0.0.0</Version>
+    <Version>2.0.0.1</Version>
     <Description>Tonberry Liberation Front Suite v2.0 - Unified HUD and Systems.</Description>
     <Authors>Refia Rakkiri - The Last Onion Knight</Authors>
     <Company>Tonberry Liberation Front</Company>
-    <RootNamespace>TonberryLiberationFront.Plugin</RootNamespace>
-    <AssemblyName>TonberryLiberationFront.Plugin</AssemblyName>
+    <RootNamespace>KhPartyBars</RootNamespace>
+    <AssemblyName>KhPartyBars</AssemblyName>
     <Product>Tonberry Liberation Front Suite</Product>
     <Copyright>CC-BY-4.0</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="TonberryLiberationFront.Plugin.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="KhPartyBars.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="images\icon.png"  CopyToOutputDirectory="PreserveNewest" Condition="Exists('images\icon.png')" />
     <None Include="README.md"        CopyToOutputDirectory="PreserveNewest" Condition="Exists('README.md')" />
     <Content Include="Resources\**\*" CopyToOutputDirectory="PreserveNewest" />

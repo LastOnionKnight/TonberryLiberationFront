@@ -1,6 +1,6 @@
 [
     {
-        "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.0/latest.zip",
+        "DownloadLinkUpdate":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
         "ApplicableVersion":  "any",
         "DalamudApiLevel":  15,
         "Tags":  [
@@ -13,10 +13,10 @@
         "Description":  "TLF HUD v0.1 — Toolbar, Tactics Popout, layout editor",
         "Author":  "Refia Rakkiri",
         "InternalName":  "KhPartyBars",
-        "DownloadLinkTesting":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.0/latest.zip",
-        "DownloadLinkInstall":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.0/latest.zip",
-        "AssemblyVersion":  "2.0.0.0",
+        "DownloadLinkTesting":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+        "DownloadLinkInstall":  "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+        "AssemblyVersion":  "2.0.0.1",
         "RepoUrl":  "https://github.com/LastOnionKnight/TonberryLiberationFront",
-        "TestingAssemblyVersion":  "2.0.0.0"
+        "TestingAssemblyVersion":  "2.0.0.1"
     }
 ]
