@@ -18,7 +18,7 @@ description: |
   Hearts BBS-style ring + portrait that reacts to your vitals, and pins
   a Tonberry mascot to the corner so you remember whose chronicle this is.
 version: 0.1.0
-author: TLF Steering Committee · Refia Rakkiri
+author: LastOnionKnight
 website: https://example.invalid/tlf
 tags:
   - Ui
@@ -196,7 +196,7 @@ presets:
   - TLF · Ishgardian Steel:
       Accent Preset: Ishgard Frost
       Background Color: [0.094, 0.118, 0.149, 0.95]
-      Window Style: Square Edge Border
+      Window Style: Square Full Border
       Shape Style: Square
 
 # ── Color slot map (reference for the .tex remap pipeline) ───────────────
