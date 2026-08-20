@@ -1,92 +1,123 @@
-# KH Party Bars — a Dalamud plugin
+# Tonberry Liberation Front Suite — Dalamud Plugin
 
-Kingdom Hearts-style party bars for FFXIV. Round job portraits, angled
-wing name tabs, gradient HP bars, the signature curl-loop terminator,
-and a slim MP stripe — themed in Onion Knight ember by default.
+**Current version:** `2.0.0.1`  
+**Dalamud SDK:** `15.0.0`
 
-> Status: **0.1.0 — pre-test scaffold.** Compiles against the Dalamud
-> dev SDK. Reskinnable from `/khpartycfg`. The curl-loop, name-tab
-> wing, gradient bars, and role rings are all rendered with ImGui draw
-> calls (no textures required) so they scale crisply.
+This project is the active Dalamud runtime for the **Tonberry Liberation Front UI Suite**.
 
-## Install (dev)
+It began as the Kingdom Hearts-style `KhPartyBars` experiment, but the product has expanded beyond party bars. The assembly/root namespace still use `KhPartyBars` for compatibility; the public product is the Tonberry Liberation Front Suite.
 
-1. Clone or unzip this folder somewhere — `KhPartyBars/`.
-2. Make sure XIVLauncher is installed and Dalamud has been built at
-   least once (the dev DLLs live at
-   `%appdata%\XIVLauncher\addon\Hooks\dev\`).
-3. From a Developer Command Prompt:
-   ```
-   cd KhPartyBars
-   dotnet build -c Release
-   ```
-   The output (`bin\Release\KhPartyBars.dll` + `KhPartyBars.json`) is
-   the plugin. If `DalamudLibPath` doesn't resolve automatically,
-   add a `KhPartyBars.csproj.user` next to the csproj with:
-   ```xml
-   <Project>
-     <PropertyGroup>
-       <DalamudLibPath>C:\full\path\to\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
-     </PropertyGroup>
-   </Project>
-   ```
-4. In-game, type `/xlsettings`, go to **Experimental**, add the local
-   plugin path (the folder containing the built DLL), and install.
-5. Use `/khparty` to toggle the overlay, `/khpartycfg` to open
-   settings.
+## Current runtime surfaces
+
+The current WindowManager owns:
+
+```text
+PartyBarsWindow
+PlayerBarWindow
+ConfigWindow
+```
+
+The suite also provides:
+
+- `/tlf` primary command
+- layout/edit mode
+- persistent player/party-bar positioning
+- off-screen position recovery
+- asset loading and shared TLF resources
+- diagnostics through `/khpbinfo`
+- compatibility aliases for the original `/khparty` command family
 
 ## Commands
 
-| Command | Effect |
-|---|---|
-| `/khparty` | Toggle the party-bars overlay on or off |
-| `/khpartycfg` | Open the configuration window |
+Primary:
 
-## Configuration
-
-The config window covers:
-
-- **Layout** — row width / height / gap / UI scale / lock position
-- **Style** — ember accent, MP color, the three HP-band colors, the
-  three role-ring colors
-- **HP thresholds** — where the bar shifts green → yellow → red
-- **Toggles** — show MP bar / curl / level / HP% / name tab / job /
-  shimmer / target ring / curl-matches-HP
-
-All settings persist via Dalamud's per-plugin config.
-
-## Files
-
-```
-KhPartyBars/
-├── KhPartyBars.csproj         ← project + Dalamud refs
-├── KhPartyBars.json           ← Dalamud plugin manifest
-├── Plugin.cs                  ← entry, command handlers, services
-├── Configuration.cs           ← persistent settings
-├── KhRosterEntry.cs           ← normalized party-member record
-├── KhRenderer.cs              ← the drawing logic
-├── Windows/
-│   ├── WindowManager.cs
-│   ├── PartyBarsWindow.cs     ← transparent overlay window
-│   └── ConfigWindow.cs        ← settings ImGui window
-└── README.md
+```text
+/tlf              Toggle suite display state
+/tlf layout       Toggle layout/edit mode
+/tlf config       Open configuration
 ```
 
-## Caveats
+Compatibility aliases:
 
-- The portrait currently shows the job abbreviation. If you want
-  textured job icons inside the disc, point `KhRenderer.DrawPortrait`
-  at `Plugin.Textures.GetFromGameIcon(...)` and pass the icon id; the
-  scaffold leaves a comment where to splice it in.
-- HP recovery / shield overlay are not yet drawn. PR welcome.
-- This is a "render on top of the native party list" overlay — it does
-  **not** hide the native one. Combine with a UI-hide preset (Frost UI,
-  Native Mod, etc.) for the full effect.
+```text
+/khparty
+/khpartycfg
+/khpbinfo
+```
 
-## Credits
+The `kh*` names are retained for compatibility and should be treated as legacy lineage, not the current product identity.
 
-Concept: Kingdom Hearts: Birth by Sleep HUD; Square Enix.
-Reskin + plugin: **Refia Rakkiri · The Last Onion Knight**, with
-the Tonberry Liberation Front.
+## Project layout
 
-License: **CC-BY-4.0** for assets, **Apache-2.0** for code.
+```text
+TonberryLiberationFront.Plugin/
+├─ Plugin.cs
+├─ Configuration.cs
+├─ AssetLoader.cs
+├─ KhRosterEntry.cs
+├─ KhRenderer.cs
+├─ Windows/
+│  ├─ WindowManager.cs
+│  ├─ PartyBarsWindow.cs
+│  ├─ PlayerBarWindow.cs
+│  └─ ConfigWindow.cs
+├─ Resources/
+├─ KhPartyBars.json
+├─ TonberryLiberationFront.Plugin.csproj
+└─ README.md
+```
+
+## Resources
+
+Runtime resources are loaded from `Resources/`.
+
+The active asset loader currently uses:
+
+- `helm-avatar.png`
+- `onion-sigil.png`
+- `onion-sigil-mask.png`
+- `wordmark.png`
+- portraits under `Resources/portraits/`
+- Eorzea font under `Resources/fonts/`
+
+When cleaning assets, verify references in `AssetLoader.cs` before deleting files.
+
+## Build
+
+```powershell
+dotnet restore
+dotnet build -c Release
+```
+
+## Current architecture debt
+
+- `RootNamespace` and `AssemblyName` are still `KhPartyBars` for compatibility.
+- legacy `/khparty*` command names remain registered as aliases.
+- repository/distribution structure still carries some original KhPartyBars lineage.
+- the suite has not yet implemented the full planned target/buff/hotbar replacement stack.
+
+These are known transition items, not evidence that the project is still a 0.1 scaffold.
+
+## Product boundary
+
+The TLF UI Suite is responsible for the **FFXIV interface/HUD experience**.
+
+Tonberry Tactics / GearGoblin is a separate optimization platform responsible for **character/gear recommendations**.
+
+The two systems may share visual language and eventually surface each other's information, but they should remain separate codebases with distinct responsibilities.
+
+## Roadmap direction
+
+Current expansion path:
+
+```text
+Player HUD
+Party HUD
+Target / target-of-target HUD
+Buff/debuff presentation
+Suite navigation / tweaks
+additional HUD surfaces
+Tonberry Tactics status integration where useful
+```
+
+The source code and current v2 runtime are authoritative over the old pre-test 0.1 documentation.
