@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 15,
+    "Tags": ["hud", "ui", "tonberry", "liberation"],
+    "Name": "Tonberry Liberation Front Suite",
+    "Description": "TLF UI Suite v2.0.0.1 — player/party HUD, layout editor, configuration, and shared TLF interface systems.",
+    "Author": "Refia Rakkiri",
+    "InternalName": "KhPartyBars",
+    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+    "AssemblyVersion": "2.0.0.1",
+    "RepoUrl": "https://github.com/LastOnionKnight/TonberryLiberationFront",
+    "TestingAssemblyVersion": "2.0.0.1"
+  }
+]
