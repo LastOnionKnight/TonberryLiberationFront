@@ -1,82 +1,107 @@
 # Tonberry Liberation Front Suite
 
-Umbrella repository for the Tonberry Liberation Front FFXIV plugin/mod suite and its shared visual language.
+Umbrella repository for the Tonberry Liberation Front FFXIV UI/HUD suite, supporting mod resources, design handoffs, and compatibility distribution files.
 
-## Current status
+## Current runtime
 
-The repository now contains an active Dalamud plugin implementation, supporting assets, and mod resources rather than only a design handoff.
-
-Current plugin project:
+Active plugin project:
 
 ```text
-TonberryLiberationFront.Plugin
+TonberryLiberationFront.Plugin/
 Version: 2.0.0.1
 Dalamud SDK: 15.0.0
 Product: Tonberry Liberation Front Suite
-Assembly/Internal lineage: KhPartyBars
+Compatibility assembly/root namespace: KhPartyBars
 ```
 
-The `KhPartyBars` assembly/root namespace remains for compatibility while the product itself is the broader Tonberry Liberation Front Suite.
+`KhPartyBars` remains the internal/assembly compatibility lineage. The current product is the broader Tonberry Liberation Front Suite.
 
-## What lives here
+## Repository layout
 
 ```text
 TonberryLiberationFront/
-├─ TonberryLiberationFront.Plugin/   Active Dalamud plugin source
-├─ TlfMod/                           TLF mod metadata and window assets
-├─ KhPartyBars/                      plugin-repository placeholder area
+├─ TonberryLiberationFront.Plugin/   active Dalamud plugin source
+├─ TlfMod/                           mod-side metadata / window resources
+├─ design_handoff_tlf_hud_v01/      historical/implementation design handoff
+├─ design_handoff_tlf_hud_v02/      later design handoff iteration
+├─ tlf-hud-v0.1-dropin/              historical drop-in package/work area
+├─ umbra-widget/                     Umbra-related widget/integration work
+├─ docs/                             suite documentation
+├─ KhPartyBars/                      legacy repository-manifest compatibility path
+├─ repo.json                         active custom Dalamud repository manifest
+├─ repo_mod.json                     mod distribution metadata
+├─ latest.zip                        committed distribution artifact where required
 └─ README.md
 ```
 
-### TonberryLiberationFront.Plugin
+## Active plugin surfaces
 
-The active Dalamud plugin project contains the current HUD/system implementation, configuration, rendering code, runtime resources, portraits, UI assets, and plugin manifest.
+Current source includes:
 
-It currently targets Dalamud API 15 through `Dalamud.NET.Sdk/15.0.0`.
+- party HUD
+- player HUD
+- configuration window
+- layout/edit mode
+- position persistence and off-screen recovery
+- runtime asset loading
+- `/tlf` primary command
+- legacy `/khparty*` compatibility aliases
+- diagnostics
 
-### TlfMod
+The plugin-local README under `TonberryLiberationFront.Plugin/` documents the runtime in more detail.
 
-Contains the TLF mod-side metadata, build notes, banner, and window-style assets used by the wider suite.
+## Distribution state
 
-### KhPartyBars
+The active root `repo.json` and the legacy `KhPartyBars/repo.json` path both identify the current **2.0.0.1** release and point at the same release ZIP. The legacy path is intentionally kept valid for compatibility rather than left as an empty manifest.
 
-Retained for compatibility/distribution lineage. The current product scope is broader than the original Kingdom Hearts-style party-bar implementation.
+The packaged plugin manifest retains `InternalName: KhPartyBars` so existing installs can continue through the product transition.
+
+## TlfMod
+
+`TlfMod/` contains mod-side metadata, build notes, and window-style assets used by the wider suite. It is related to, but distinct from, the Dalamud runtime.
+
+## Design handoffs
+
+The v01/v02 handoff directories are historical/implementation references. They should not be treated as the current runtime by themselves; current source code and current documentation are authoritative for what actually ships.
 
 ## Relationship to Tonberry Tactics
 
-Tonberry Tactics is a separate but related gearing/optimization system:
+Tonberry Tactics is a separate character-optimization platform:
 
-- `LastOnionKnight/GearGoblin` — in-game Tonberry Tactics plugin; public product name is Tonberry Tactics, internal name remains `GearGoblin`
-- `LastOnionKnight/GearGoblin-Core` — shared optimizer/formula library
-- `LastOnionKnight/TonberryTactics` — browser companion
+```text
+GearGoblin          — in-game optimizer plugin
+GearGoblin-Core     — shared optimizer/formulas
+TonberryTactics     — browser companion
+```
 
-The Tonberry Liberation Front Suite and Tonberry Tactics share project identity and visual language, but they are separate codebases with separate responsibilities.
-
-## Design direction
-
-The suite uses the TLF HUD visual system that evolved out of the original handoff work. That design language now informs active runtime implementation rather than existing only as a future concept.
-
-Current development should treat the repository source and shipped assets as authoritative over old roadmap language that referenced pre-implementation `v0.1`/`v0.2` phases.
+The TLF UI Suite owns the **interface/HUD experience**. Tonberry Tactics owns **character/gear optimization**. They may share visual language and surface each other's status later, but they remain separate products/codebases.
 
 ## Build
 
-From the plugin project directory:
+From `TonberryLiberationFront.Plugin/`:
 
 ```powershell
 dotnet restore
 dotnet build -c Release
 ```
 
-## Current caution
+## Current architecture debt
 
-The plugin still carries `KhPartyBars` as its root namespace and assembly name. That is intentional compatibility debt, not evidence that the repository is still only a party-bar experiment.
+- `KhPartyBars` assembly/root namespace remains for compatibility
+- legacy `kh*` commands remain as aliases
+- historical design/drop-in directories still document earlier phases
+- target/buff/hotbar and wider HUD replacement surfaces are not complete
 
-## Related repositories
+## Roadmap direction
 
-- https://github.com/LastOnionKnight/GearGoblin
-- https://github.com/LastOnionKnight/GearGoblin-Core
-- https://github.com/LastOnionKnight/TonberryTactics
+```text
+Player HUD
+Party HUD
+Target / target-of-target HUD
+Buff/debuff presentation
+Suite navigation / tweaks
+additional HUD surfaces
+Tonberry Tactics status integration where useful
+```
 
-## Project identity
-
-Forged by Refia Rakkiri / The Last Onion Knight.
+Current source and v2 documentation take precedence over old pre-implementation roadmap language.
