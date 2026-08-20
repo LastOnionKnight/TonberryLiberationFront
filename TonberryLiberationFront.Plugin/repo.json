@@ -1,19 +1,20 @@
-[{
+[
+  {
     "Author": "Refia Rakkiri · The Last Onion Knight",
     "Name": "Tonberry Liberation Front Suite",
     "InternalName": "KhPartyBars",
-    "AssemblyVersion": "2.0.0.0",
-    "TestingAssemblyVersion": "2.0.0.0",
-    "Description": "Kingdom Hearts-style party bars for FFXIV with authentic vector aesthetic. Features round job portraits, angled Drive bar, layered HP/MP bars with slanted tails, prominent curl-loop, and thick black outlines.",
+    "AssemblyVersion": "2.0.0.1",
+    "TestingAssemblyVersion": "2.0.0.1",
+    "Description": "TLF UI Suite v2.0.0.1 — player/party HUD, layout editor, configuration, and shared TLF interface systems.",
     "ApplicableVersion": "any",
-    "Tags": ["UI", "Party", "Theme", "Cosmetic"],
+    "Tags": ["UI", "Party", "HUD", "Theme", "Cosmetic"],
     "CategoryTags": ["UI"],
     "RepoUrl": "https://github.com/LastOnionKnight/TonberryLiberationFront",
     "DalamudApiLevel": 15,
     "IsTestingExclusive": true,
     "Punchline": "Stab. Stab. Heal. Stab.",
-    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-suite-v2.0.0.0/latest.zip",
-    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-suite-v2.0.0.0/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/tlf-suite-v2.0.0.0/latest.zip",
-    "IconUrl": "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/images/icon.png"
-}]
+    "DownloadLinkInstall": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+    "DownloadLinkTesting": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/LastOnionKnight/TonberryLiberationFront/releases/download/v2.0.0.1/latest.zip"
+  }
+]
