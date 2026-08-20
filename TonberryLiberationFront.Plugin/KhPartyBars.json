@@ -1,27 +1,18 @@
 {
-    "Author":  "Refia Rakkiri · The Last Onion Knight",
-    "Name":  "Tonberry Liberation Front Suite",
-    "InternalName":  "KhPartyBars",
-    "AssemblyVersion":  "2.0.0.1",
-    "Description":  "Kingdom Hearts-style party bars for FFXIV with authentic vector aesthetic. Features round job portraits, angled Drive bar, layered HP/MP bars with slanted tails, prominent curl-loop, and thick black outlines.",
-    "ApplicableVersion":  "any",
-    "Tags":  [
-                 "UI",
-                 "Party",
-                 "Theme",
-                 "Cosmetic"
-             ],
-    "CategoryTags":  [
-                         "UI"
-                     ],
-    "RepoUrl":  "https://github.com/LastOnionKnight/TonberryLiberationFront",
-    "IconUrl":  "https://raw.githubusercontent.com/LastOnionKnight/TonberryLiberationFront/main/KhPartyBars/images/icon.png",
-    "Punchline":  "Stab. Stab. Heal. Stab.",
-    "AcceptsFeedback":  true,
-    "DalamudApiLevel":  15,
-    "LoadRequiredState":  0,
-    "LoadSync":  false,
-    "CanUnloadAsync":  true,
-    "LoadPriority":  0,
-    "IsTestingExclusive":  true
+  "Author": "Refia Rakkiri · The Last Onion Knight",
+  "Name": "Tonberry Liberation Front Suite",
+  "InternalName": "KhPartyBars",
+  "AssemblyVersion": "2.0.0.1",
+  "Description": "Tonberry Liberation Front UI Suite for FFXIV: player/party HUD surfaces, layout editing, configuration, shared assets, and the evolving TLF interface system.",
+  "ApplicableVersion": "any",
+  "Tags": ["UI", "Party", "HUD", "Theme", "Cosmetic"],
+  "CategoryTags": ["UI"],
+  "RepoUrl": "https://github.com/LastOnionKnight/TonberryLiberationFront",
+  "Punchline": "Stab. Stab. Heal. Stab.",
+  "AcceptsFeedback": true,
+  "DalamudApiLevel": 15,
+  "LoadRequiredState": 0,
+  "CanUnloadAsync": true,
+  "LoadPriority": 0,
+  "IsTestingExclusive": true
 }
